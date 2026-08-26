@@ -1,0 +1,209 @@
+<script setup>
+import { reactive, ref, computed } from 'vue'
+
+const form = reactive({
+  name: '',
+  email: '',
+  subject: '',
+  message: ''
+})
+
+const errors = reactive({
+  name: '',
+  email: '',
+  subject: '',
+  message: ''
+})
+
+const submitted = ref(false)
+const submitSuccess = ref(false)
+
+function validateRequired(value, fieldName) {
+  if (!value || value.trim() === '') {
+    return `${fieldName} is required`
+  }
+  return ''
+}
+
+function validateEmail(value) {
+  if (!value || value.trim() === '') {
+    return 'Email is required'
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(value)) {
+    return 'Please enter a valid email address'
+  }
+  return ''
+}
+
+function validateMinLength(value, fieldName, minLen) {
+  if (!value || value.trim() === '') {
+    return `${fieldName} is required`
+  }
+  if (value.trim().length < minLen) {
+    return `${fieldName} must be at least ${minLen} characters`
+  }
+  return ''
+}
+
+function validateField(field) {
+  switch (field) {
+    case 'name':
+      errors.name = validateRequired(form.name, 'Name')
+      break
+    case 'email':
+      errors.email = validateEmail(form.email)
+      break
+    case 'subject':
+      errors.subject = validateRequired(form.subject, 'Subject')
+      break
+    case 'message':
+      errors.message = validateMinLength(form.message, 'Message', 10)
+      break
+  }
+}
+
+function validateAll() {
+  validateField('name')
+  validateField('email')
+  validateField('subject')
+  validateField('message')
+  return !errors.name && !errors.email && !errors.subject && !errors.message
+}
+
+const isFormValid = computed(() => {
+  return (
+    form.name &&
+    form.email &&
+    form.subject &&
+    form.message &&
+    !errors.name &&
+    !errors.email &&
+    !errors.subject &&
+    !errors.message
+  )
+})
+
+function handleSubmit() {
+  submitted.value = true
+  if (validateAll()) {
+    const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]')
+    submissions.push({
+      ...form,
+      timestamp: new Date().toISOString()
+    })
+    localStorage.setItem('contactSubmissions', JSON.stringify(submissions))
+
+    submitSuccess.value = true
+    Object.assign(form, { name: '', email: '', subject: '', message: '' })
+    Object.assign(errors, { name: '', email: '', subject: '', message: '' })
+    submitted.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <h1 class="mb-2">Contact Us</h1>
+        <p class="text-muted mb-4">
+          Have a question about our programs? We'd love to hear from you.
+        </p>
+
+        <div v-if="submitSuccess" class="alert alert-success alert-dismissible" role="alert">
+          Thank you for your message! We will get back to you soon.
+          <button type="button" class="btn-close" @click="submitSuccess = false"></button>
+        </div>
+
+        <form @submit.prevent="handleSubmit" novalidate>
+          <div class="mb-3">
+            <label for="name" class="form-label">
+              Full Name <span class="text-danger">*</span>
+            </label>
+            <input
+              id="name"
+              v-model="form.name"
+              type="text"
+              class="form-control"
+              :class="{
+                'is-invalid': errors.name,
+                'is-valid': submitted && !errors.name && form.name
+              }"
+              placeholder="Enter your full name"
+              @blur="validateField('name')"
+            />
+            <div class="invalid-feedback">{{ errors.name }}</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">
+              Email Address <span class="text-danger">*</span>
+            </label>
+            <input
+              id="email"
+              v-model="form.email"
+              type="email"
+              class="form-control"
+              :class="{
+                'is-invalid': errors.email,
+                'is-valid': submitted && !errors.email && form.email
+              }"
+              placeholder="your.email@example.com"
+              @blur="validateField('email')"
+            />
+            <div class="invalid-feedback">{{ errors.email }}</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="subject" class="form-label">
+              Subject <span class="text-danger">*</span>
+            </label>
+            <select
+              id="subject"
+              v-model="form.subject"
+              class="form-select"
+              :class="{
+                'is-invalid': errors.subject,
+                'is-valid': submitted && !errors.subject && form.subject
+              }"
+              @blur="validateField('subject')"
+            >
+              <option value="" disabled>Select a subject</option>
+              <option value="volunteer">Volunteer Inquiry</option>
+              <option value="donation">Donation Information</option>
+              <option value="event">Event Question</option>
+              <option value="partnership">Partnership Opportunity</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="invalid-feedback">{{ errors.subject }}</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="message" class="form-label">
+              Message <span class="text-danger">*</span>
+            </label>
+            <textarea
+              id="message"
+              v-model="form.message"
+              class="form-control"
+              :class="{
+                'is-invalid': errors.message,
+                'is-valid': submitted && !errors.message && form.message
+              }"
+              rows="5"
+              placeholder="Tell us how we can help (at least 10 characters)"
+              @blur="validateField('message')"
+            ></textarea>
+            <div class="invalid-feedback">{{ errors.message }}</div>
+            <div class="form-text">{{ form.message.length }} / 10 minimum characters</div>
+          </div>
+
+          <button type="submit" class="btn btn-greenroots w-100" :disabled="!isFormValid">
+            <i class="bi bi-send me-2"></i>Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
