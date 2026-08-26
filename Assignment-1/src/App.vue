@@ -7,7 +7,11 @@ import FooterBar from './components/layout/FooterBar.vue'
   <div id="app">
     <NavBar />
     <main>
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </main>
     <FooterBar />
   </div>
