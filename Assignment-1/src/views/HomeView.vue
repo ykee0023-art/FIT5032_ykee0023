@@ -15,7 +15,7 @@ onMounted(() => {
     <section class="hero-section text-center">
       <div class="container">
         <h1 class="display-4 fw-bold mb-3">Growing a Greener Melbourne</h1>
-        <p class="lead mb-4 mx-auto" style="max-width: 600px">
+        <p class="lead mb-4 mx-auto fw-semibold" style="max-width: 600px">
           GreenRoots Melbourne is a not-for-profit dedicated to urban greening, community tree
           planting, and biodiversity conservation across Greater Melbourne.
         </p>
