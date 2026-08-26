@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "name": "Merri Creek Planting Day",
+    "date": "2026-09-05",
+    "time": "9:00 AM - 12:00 PM",
+    "suburb": "Coburg North",
+    "type": "Tree planting",
+    "spots": 14,
+    "totalSpots": 30,
+    "rating": 4.8,
+    "description": "Join us for a morning of native tree planting along the Merri Creek corridor. All tools and refreshments provided."
+  },
+  {
+    "id": 2,
+    "name": "Fitzroy Pocket Park Build",
+    "date": "2026-09-13",
+    "time": "10:00 AM - 2:00 PM",
+    "suburb": "Fitzroy",
+    "type": "Urban garden",
+    "spots": 6,
+    "totalSpots": 20,
+    "rating": 4.5,
+    "description": "Help us transform an unused lot in Fitzroy into a vibrant community pocket park with native plantings."
+  },
+  {
+    "id": 3,
+    "name": "Native Grass Seed Collection",
+    "date": "2026-09-20",
+    "time": "8:30 AM - 11:00 AM",
+    "suburb": "Brunswick",
+    "type": "Biodiversity",
+    "spots": 22,
+    "totalSpots": 25,
+    "rating": 4.9,
+    "description": "Learn about native grasses and help collect seeds for our revegetation nursery program."
+  },
+  {
+    "id": 4,
+    "name": "Yarra Bank Weed Removal",
+    "date": "2026-09-27",
+    "time": "9:00 AM - 1:00 PM",
+    "suburb": "Abbotsford",
+    "type": "Habitat care",
+    "spots": 0,
+    "totalSpots": 15,
+    "rating": 4.2,
+    "description": "Help restore the Yarra riverbank by removing invasive weeds and planting native ground cover."
+  },
+  {
+    "id": 5,
+    "name": "Schoolyard Greening Workshop",
+    "date": "2026-10-04",
+    "time": "10:00 AM - 3:00 PM",
+    "suburb": "Preston",
+    "type": "Education",
+    "spots": 31,
+    "totalSpots": 40,
+    "rating": 4.7,
+    "description": "A hands-on workshop for teachers and parents on creating green spaces in schoolyards."
+  },
+  {
+    "id": 6,
+    "name": "Westgate Park Revegetation",
+    "date": "2026-10-11",
+    "time": "8:00 AM - 12:00 PM",
+    "suburb": "Port Melbourne",
+    "type": "Tree planting",
+    "spots": 18,
+    "totalSpots": 35,
+    "rating": 4.6,
+    "description": "Continue the award-winning revegetation program at Westgate Park with new native plantings."
+  },
+  {
+    "id": 7,
+    "name": "Darebin Creek Bird Habitat Restoration",
+    "date": "2026-10-18",
+    "time": "8:00 AM - 11:30 AM",
+    "suburb": "Alphington",
+    "type": "Biodiversity",
+    "spots": 10,
+    "totalSpots": 20,
+    "rating": 4.4,
+    "description": "Help create habitat corridors for native birds along the Darebin Creek with understorey planting."
+  },
+  {
+    "id": 8,
+    "name": "Carlton Rooftop Garden Project",
+    "date": "2026-10-25",
+    "time": "9:00 AM - 1:00 PM",
+    "suburb": "Carlton",
+    "type": "Urban garden",
+    "spots": 0,
+    "totalSpots": 12,
+    "rating": 4.8,
+    "description": "Join our pilot rooftop garden project, transforming an inner-city building into a green oasis."
+  },
+  {
+    "id": 9,
+    "name": "Indigenous Plants Walk & Talk",
+    "date": "2026-11-01",
+    "time": "10:00 AM - 12:00 PM",
+    "suburb": "Royal Park",
+    "type": "Education",
+    "spots": 25,
+    "totalSpots": 30,
+    "rating": 4.9,
+    "description": "A guided walk with an Indigenous elder exploring traditional uses of native plants in the Melbourne region."
+  }
+]
