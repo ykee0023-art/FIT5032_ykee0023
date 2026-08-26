@@ -1,133 +1,21 @@
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { ref } from 'vue'
+import { useFormValidation } from '@/composables/useFormValidation'
 
-const form = reactive({
-  name: '',
-  email: '',
-  phone: '',
-  age: '',
-  skills: '',
-  message: ''
-})
-
-const errors = reactive({
-  name: '',
-  email: '',
-  phone: '',
-  age: '',
-  skills: '',
-  message: ''
-})
+const { form, errors, validateField, validateAll, isFormValid, resetForm } = useFormValidation(
+  ['name', 'email', 'phone', 'age', 'skills', 'message'],
+  {
+    name: { type: 'required', label: 'Name' },
+    email: { type: 'email', label: 'Email' },
+    phone: { type: 'phone', label: 'Phone' },
+    age: { type: 'ageRange', label: 'Age', min: 16, max: 100 },
+    skills: { type: 'required', label: 'Area of interest' },
+    message: { type: 'minLength', label: 'Message', min: 5 }
+  }
+)
 
 const submitted = ref(false)
 const submitSuccess = ref(false)
-
-function validateRequired(value, fieldName) {
-  if (!value || String(value).trim() === '') {
-    return `${fieldName} is required`
-  }
-  return ''
-}
-
-function validateEmail(value) {
-  if (!value || value.trim() === '') {
-    return 'Email is required'
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(value)) {
-    return 'Please enter a valid email address'
-  }
-  return ''
-}
-
-function validatePhone(value) {
-  if (!value || value.trim() === '') {
-    return 'Phone number is required'
-  }
-  const phoneRegex = /^(\+61|0)[2-9]\d{8}$/
-  if (!phoneRegex.test(value.replace(/\s/g, ''))) {
-    return 'Please enter a valid Australian phone number (e.g. 0412345678)'
-  }
-  return ''
-}
-
-function validateAge(value) {
-  if (value === '' || value === null || value === undefined) {
-    return 'Age is required'
-  }
-  const num = Number(value)
-  if (isNaN(num) || num < 16 || num > 100) {
-    return 'Age must be between 16 and 100'
-  }
-  return ''
-}
-
-function validateMinLength(value, fieldName, minLen) {
-  if (!value || value.trim() === '') {
-    return `${fieldName} is required`
-  }
-  if (value.trim().length < minLen) {
-    return `${fieldName} must be at least ${minLen} characters`
-  }
-  return ''
-}
-
-function validateField(field) {
-  switch (field) {
-    case 'name':
-      errors.name = validateRequired(form.name, 'Name')
-      break
-    case 'email':
-      errors.email = validateEmail(form.email)
-      break
-    case 'phone':
-      errors.phone = validatePhone(form.phone)
-      break
-    case 'age':
-      errors.age = validateAge(form.age)
-      break
-    case 'skills':
-      errors.skills = validateRequired(form.skills, 'Area of interest')
-      break
-    case 'message':
-      errors.message = validateMinLength(form.message, 'Message', 5)
-      break
-  }
-}
-
-function validateAll() {
-  validateField('name')
-  validateField('email')
-  validateField('phone')
-  validateField('age')
-  validateField('skills')
-  validateField('message')
-  return (
-    !errors.name &&
-    !errors.email &&
-    !errors.phone &&
-    !errors.age &&
-    !errors.skills &&
-    !errors.message
-  )
-}
-
-const isFormValid = computed(() => {
-  return (
-    form.name &&
-    form.email &&
-    form.phone &&
-    form.age &&
-    form.skills &&
-    form.message &&
-    !errors.name &&
-    !errors.email &&
-    !errors.phone &&
-    !errors.age &&
-    !errors.skills &&
-    !errors.message
-  )
-})
 
 function handleSubmit() {
   submitted.value = true
@@ -140,8 +28,7 @@ function handleSubmit() {
     localStorage.setItem('volunteerRegistrations', JSON.stringify(registrations))
 
     submitSuccess.value = true
-    Object.assign(form, { name: '', email: '', phone: '', age: '', skills: '', message: '' })
-    Object.assign(errors, { name: '', email: '', phone: '', age: '', skills: '', message: '' })
+    resetForm()
     submitted.value = false
   }
 }

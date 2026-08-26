@@ -1,88 +1,19 @@
 <script setup>
-import { reactive, ref, computed } from 'vue'
+import { ref } from 'vue'
+import { useFormValidation } from '@/composables/useFormValidation'
 
-const form = reactive({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
-
-const errors = reactive({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
+const { form, errors, validateField, validateAll, isFormValid, resetForm } = useFormValidation(
+  ['name', 'email', 'subject', 'message'],
+  {
+    name: { type: 'required', label: 'Name' },
+    email: { type: 'email', label: 'Email' },
+    subject: { type: 'required', label: 'Subject' },
+    message: { type: 'minLength', label: 'Message', min: 10 }
+  }
+)
 
 const submitted = ref(false)
 const submitSuccess = ref(false)
-
-function validateRequired(value, fieldName) {
-  if (!value || value.trim() === '') {
-    return `${fieldName} is required`
-  }
-  return ''
-}
-
-function validateEmail(value) {
-  if (!value || value.trim() === '') {
-    return 'Email is required'
-  }
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(value)) {
-    return 'Please enter a valid email address'
-  }
-  return ''
-}
-
-function validateMinLength(value, fieldName, minLen) {
-  if (!value || value.trim() === '') {
-    return `${fieldName} is required`
-  }
-  if (value.trim().length < minLen) {
-    return `${fieldName} must be at least ${minLen} characters`
-  }
-  return ''
-}
-
-function validateField(field) {
-  switch (field) {
-    case 'name':
-      errors.name = validateRequired(form.name, 'Name')
-      break
-    case 'email':
-      errors.email = validateEmail(form.email)
-      break
-    case 'subject':
-      errors.subject = validateRequired(form.subject, 'Subject')
-      break
-    case 'message':
-      errors.message = validateMinLength(form.message, 'Message', 10)
-      break
-  }
-}
-
-function validateAll() {
-  validateField('name')
-  validateField('email')
-  validateField('subject')
-  validateField('message')
-  return !errors.name && !errors.email && !errors.subject && !errors.message
-}
-
-const isFormValid = computed(() => {
-  return (
-    form.name &&
-    form.email &&
-    form.subject &&
-    form.message &&
-    !errors.name &&
-    !errors.email &&
-    !errors.subject &&
-    !errors.message
-  )
-})
 
 function handleSubmit() {
   submitted.value = true
@@ -95,8 +26,7 @@ function handleSubmit() {
     localStorage.setItem('contactSubmissions', JSON.stringify(submissions))
 
     submitSuccess.value = true
-    Object.assign(form, { name: '', email: '', subject: '', message: '' })
-    Object.assign(errors, { name: '', email: '', subject: '', message: '' })
+    resetForm()
     submitted.value = false
   }
 }
