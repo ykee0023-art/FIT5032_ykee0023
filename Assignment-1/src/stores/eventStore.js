@@ -45,6 +45,11 @@ export const useEventStore = defineStore('events', () => {
     events.value = eventsData
   }
 
+  function clearFilters() {
+    searchQuery.value = ''
+    selectedType.value = ''
+  }
+
   return {
     events,
     searchQuery,
@@ -55,5 +60,6 @@ export const useEventStore = defineStore('events', () => {
     averageRating,
     totalSpots,
     loadEvents,
+    clearFilters,
   }
 })

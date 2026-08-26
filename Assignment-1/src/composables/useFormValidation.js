@@ -1,13 +1,9 @@
 import { reactive, computed } from 'vue'
 
 export function useFormValidation(fields, rules) {
-  const form = reactive(
-    Object.fromEntries(fields.map((f) => [f, '']))
-  )
+  const form = reactive(Object.fromEntries(fields.map((f) => [f, ''])))
 
-  const errors = reactive(
-    Object.fromEntries(fields.map((f) => [f, '']))
-  )
+  const errors = reactive(Object.fromEntries(fields.map((f) => [f, ''])))
 
   const validators = {
     required(value, fieldName) {
@@ -50,7 +46,7 @@ export function useFormValidation(fields, rules) {
         return `${fieldName} must be between ${min} and ${max}`
       }
       return ''
-    }
+    },
   }
 
   function validateField(field) {
@@ -65,9 +61,7 @@ export function useFormValidation(fields, rules) {
     return fields.every((f) => !errors[f])
   }
 
-  const isFormValid = computed(() =>
-    fields.every((f) => form[f] && !errors[f])
-  )
+  const isFormValid = computed(() => fields.every((f) => form[f] && !errors[f]))
 
   function resetForm() {
     fields.forEach((f) => {

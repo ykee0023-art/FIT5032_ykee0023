@@ -20,18 +20,21 @@ onMounted(() => {
 
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-6">
+        <label for="event-search" class="visually-hidden">Search events by name or suburb</label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
           <input
+            id="event-search"
             v-model="store.searchQuery"
-            type="text"
+            type="search"
             class="form-control"
             placeholder="Search events by name or suburb..."
           />
         </div>
       </div>
       <div class="col-12 col-md-4">
-        <select v-model="store.selectedType" class="form-select">
+        <label for="event-type" class="visually-hidden">Filter events by type</label>
+        <select id="event-type" v-model="store.selectedType" class="form-select">
           <option value="">All types</option>
           <option v-for="type in store.eventTypes" :key="type" :value="type">
             {{ type }}
@@ -39,14 +42,13 @@ onMounted(() => {
         </select>
       </div>
       <div class="col-12 col-md-2">
-        <button
-          class="btn btn-outline-secondary w-100"
-          @click="store.searchQuery = ''; store.selectedType = ''"
-        >
-          Clear
-        </button>
+        <button class="btn btn-outline-secondary w-100" @click="store.clearFilters()">Clear</button>
       </div>
     </div>
+
+    <p class="text-muted small" role="status" aria-live="polite">
+      Showing {{ store.filteredEvents.length }} of {{ store.totalEvents }} events
+    </p>
 
     <div class="row g-4">
       <div
@@ -61,12 +63,7 @@ onMounted(() => {
     <div v-if="store.filteredEvents.length === 0" class="text-center py-5">
       <i class="bi bi-search display-4 text-muted"></i>
       <p class="text-muted fs-5 mt-3">No events found matching your search.</p>
-      <button
-        class="btn btn-greenroots"
-        @click="store.searchQuery = ''; store.selectedType = ''"
-      >
-        View all events
-      </button>
+      <button class="btn btn-greenroots" @click="store.clearFilters()">View all events</button>
     </div>
   </div>
 </template>

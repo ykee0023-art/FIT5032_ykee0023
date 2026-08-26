@@ -5,8 +5,9 @@ import FooterBar from './components/layout/FooterBar.vue'
 
 <template>
   <div id="app">
+    <a href="#main-content" class="skip-link visually-hidden-focusable">Skip to main content</a>
     <NavBar />
-    <main>
+    <main id="main-content" tabindex="-1">
       <RouterView v-slot="{ Component }">
         <Transition name="fade" mode="out-in">
           <component :is="Component" />

@@ -51,6 +51,7 @@ const formattedDate = computed(() => {
             class="btn btn-sm"
             :class="isFull ? 'btn-outline-secondary' : 'btn-greenroots'"
             :disabled="isFull"
+            :aria-label="`${isFull ? 'Join waitlist for' : 'Register for'} ${event.name}`"
           >
             {{ isFull ? 'Waitlist' : 'Register' }}
           </button>

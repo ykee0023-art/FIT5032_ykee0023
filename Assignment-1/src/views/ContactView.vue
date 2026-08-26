@@ -43,7 +43,12 @@ function handleSubmit() {
 
         <div v-if="submitSuccess" class="alert alert-success alert-dismissible" role="alert">
           Thank you for your message! We will get back to you soon.
-          <button type="button" class="btn-close" @click="submitSuccess = false"></button>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Dismiss confirmation message"
+            @click="submitSuccess = false"
+          ></button>
         </div>
 
         <form @submit.prevent="handleSubmit" novalidate>
