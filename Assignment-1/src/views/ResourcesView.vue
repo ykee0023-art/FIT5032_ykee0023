@@ -88,6 +88,10 @@ function formatDate(dateStr) {
       </div>
     </div>
 
+    <p class="text-muted small" role="status" aria-live="polite">
+      Showing {{ filteredArticles.length }} of {{ articles.length }} articles
+    </p>
+
     <div class="row g-4">
       <div v-for="article in filteredArticles" :key="article.id" class="col-12 col-md-6">
         <div class="card h-100 shadow-sm">
@@ -98,7 +102,12 @@ function formatDate(dateStr) {
             </div>
             <h5 class="card-title">{{ article.title }}</h5>
             <p class="card-text text-muted">{{ article.excerpt }}</p>
-            <button class="btn btn-sm btn-outline-greenroots">Read More</button>
+            <button
+              class="btn btn-sm btn-outline-greenroots"
+              :aria-label="`Read more about ${article.title}`"
+            >
+              Read More
+            </button>
           </div>
         </div>
       </div>
