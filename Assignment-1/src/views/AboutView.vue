@@ -22,7 +22,7 @@
       </div>
       <div class="col-12 col-md-4">
         <div class="bg-success bg-opacity-10 rounded-3 p-4 text-center">
-          <i class="bi bi-tree display-3 text-greenroots"></i>
+          <i class="bi bi-tree display-3 text-greenroots" aria-hidden="true"></i>
           <h4 class="mt-3">Our Impact</h4>
           <ul class="list-unstyled mt-3 text-start">
             <li class="mb-2"><strong>12,500+</strong> trees planted</li>
@@ -38,7 +38,7 @@
     <div class="row g-4 mb-5">
       <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 text-center p-3">
-          <i class="bi bi-people fs-1 text-greenroots"></i>
+          <i class="bi bi-people fs-1 text-greenroots" aria-hidden="true"></i>
           <h5 class="mt-2">Community</h5>
           <p class="small text-muted">
             We believe greening is strongest when communities lead the way.
@@ -47,7 +47,7 @@
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 text-center p-3">
-          <i class="bi bi-shield-check fs-1 text-greenroots"></i>
+          <i class="bi bi-shield-check fs-1 text-greenroots" aria-hidden="true"></i>
           <h5 class="mt-2">Sustainability</h5>
           <p class="small text-muted">
             Every planting is designed for long-term ecological benefit.
@@ -56,7 +56,7 @@
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 text-center p-3">
-          <i class="bi bi-lightbulb fs-1 text-greenroots"></i>
+          <i class="bi bi-lightbulb fs-1 text-greenroots" aria-hidden="true"></i>
           <h5 class="mt-2">Education</h5>
           <p class="small text-muted">
             We teach people about native plants and ecological stewardship.
@@ -65,7 +65,7 @@
       </div>
       <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 text-center p-3">
-          <i class="bi bi-heart fs-1 text-greenroots"></i>
+          <i class="bi bi-heart fs-1 text-greenroots" aria-hidden="true"></i>
           <h5 class="mt-2">Inclusion</h5>
           <p class="small text-muted">
             Everyone is welcome regardless of age, ability, or experience.
@@ -79,7 +79,7 @@
       <div class="col-12 col-sm-6 col-lg-4">
         <div class="card h-100">
           <div class="card-body text-center">
-            <i class="bi bi-person-circle display-4 text-greenroots"></i>
+            <i class="bi bi-person-circle display-4 text-greenroots" aria-hidden="true"></i>
             <h5 class="mt-2">Sarah Chen</h5>
             <p class="text-muted small">Program Coordinator</p>
             <p class="small">
@@ -91,7 +91,7 @@
       <div class="col-12 col-sm-6 col-lg-4">
         <div class="card h-100">
           <div class="card-body text-center">
-            <i class="bi bi-person-circle display-4 text-greenroots"></i>
+            <i class="bi bi-person-circle display-4 text-greenroots" aria-hidden="true"></i>
             <h5 class="mt-2">Dr. James Murray</h5>
             <p class="text-muted small">Ecology Advisor</p>
             <p class="small">
@@ -104,7 +104,7 @@
       <div class="col-12 col-sm-6 col-lg-4">
         <div class="card h-100">
           <div class="card-body text-center">
-            <i class="bi bi-person-circle display-4 text-greenroots"></i>
+            <i class="bi bi-person-circle display-4 text-greenroots" aria-hidden="true"></i>
             <h5 class="mt-2">Priya Sharma</h5>
             <p class="text-muted small">Community Engagement Lead</p>
             <p class="small">

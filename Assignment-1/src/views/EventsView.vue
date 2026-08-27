@@ -61,7 +61,7 @@ onMounted(() => {
     </div>
 
     <div v-if="store.filteredEvents.length === 0" class="text-center py-5">
-      <i class="bi bi-search display-4 text-muted"></i>
+      <i class="bi bi-search display-4 text-muted" aria-hidden="true"></i>
       <p class="text-muted fs-5 mt-3">No events found matching your search.</p>
       <button class="btn btn-greenroots" @click="store.clearFilters()">View all events</button>
     </div>

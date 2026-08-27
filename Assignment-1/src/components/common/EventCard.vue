@@ -28,16 +28,21 @@ const formattedDate = computed(() => {
           {{ event.type }}
         </span>
         <span class="text-warning">
-          <i class="bi bi-star-fill"></i> {{ event.rating }}
+          <i class="bi bi-star-fill" aria-hidden="true"></i>
+          <span class="visually-hidden">Rating:</span> {{ event.rating }}
+          <span class="visually-hidden">out of 5</span>
         </span>
       </div>
 
       <h5 class="card-title">{{ event.name }}</h5>
 
       <p class="card-text text-muted small mb-2">
-        <i class="bi bi-calendar me-1"></i> {{ formattedDate }}<br />
-        <i class="bi bi-clock me-1"></i> {{ event.time }}<br />
-        <i class="bi bi-geo-alt me-1"></i> {{ event.suburb }}
+        <i class="bi bi-calendar me-1" aria-hidden="true"></i>
+        <span class="visually-hidden">Date:</span> {{ formattedDate }}<br />
+        <i class="bi bi-clock me-1" aria-hidden="true"></i>
+        <span class="visually-hidden">Time:</span> {{ event.time }}<br />
+        <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>
+        <span class="visually-hidden">Location:</span> {{ event.suburb }}
       </p>
 
       <p class="card-text flex-grow-1">{{ event.description }}</p>

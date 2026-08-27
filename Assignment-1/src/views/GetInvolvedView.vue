@@ -44,7 +44,7 @@ function handleSubmit() {
         </p>
         <div class="mt-4">
           <div class="d-flex align-items-start mb-3">
-            <i class="bi bi-clock fs-4 text-greenroots me-3"></i>
+            <i class="bi bi-clock fs-4 text-greenroots me-3" aria-hidden="true"></i>
             <div>
               <h6 class="mb-1">Flexible Hours</h6>
               <p class="small text-muted mb-0">
@@ -53,7 +53,7 @@ function handleSubmit() {
             </div>
           </div>
           <div class="d-flex align-items-start mb-3">
-            <i class="bi bi-tools fs-4 text-greenroots me-3"></i>
+            <i class="bi bi-tools fs-4 text-greenroots me-3" aria-hidden="true"></i>
             <div>
               <h6 class="mb-1">No Experience Needed</h6>
               <p class="small text-muted mb-0">
@@ -62,7 +62,7 @@ function handleSubmit() {
             </div>
           </div>
           <div class="d-flex align-items-start mb-3">
-            <i class="bi bi-award fs-4 text-greenroots me-3"></i>
+            <i class="bi bi-award fs-4 text-greenroots me-3" aria-hidden="true"></i>
             <div>
               <h6 class="mb-1">Certificate of Participation</h6>
               <p class="small text-muted mb-0">
@@ -215,7 +215,7 @@ function handleSubmit() {
                     class="btn btn-greenroots w-100"
                     :disabled="!isFormValid"
                   >
-                    <i class="bi bi-person-plus me-2"></i>Register as Volunteer
+                    <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Register as Volunteer
                   </button>
                 </div>
               </div>

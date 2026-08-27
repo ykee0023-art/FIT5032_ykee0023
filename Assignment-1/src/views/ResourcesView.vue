@@ -72,11 +72,15 @@ function formatDate(dateStr) {
 
     <div class="row mb-4">
       <div class="col-12 col-md-6">
+        <label for="article-search" class="visually-hidden">
+          Search articles by title or category
+        </label>
         <div class="input-group">
-          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
           <input
+            id="article-search"
             v-model="searchQuery"
-            type="text"
+            type="search"
             class="form-control"
             placeholder="Search articles..."
           />
@@ -101,7 +105,7 @@ function formatDate(dateStr) {
     </div>
 
     <div v-if="filteredArticles.length === 0" class="text-center py-5">
-      <i class="bi bi-journal-text display-4 text-muted"></i>
+      <i class="bi bi-journal-text display-4 text-muted" aria-hidden="true"></i>
       <p class="text-muted fs-5 mt-3">No articles found matching your search.</p>
       <button class="btn btn-greenroots" @click="searchQuery = ''">View all articles</button>
     </div>

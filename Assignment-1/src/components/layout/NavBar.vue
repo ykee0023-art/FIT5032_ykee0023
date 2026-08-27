@@ -10,7 +10,7 @@ const currentPath = computed(() => route.path)
   <nav class="navbar navbar-expand-lg navbar-dark bg-greenroots sticky-top shadow-sm">
     <div class="container">
       <RouterLink class="navbar-brand" to="/">
-        <i class="bi bi-tree me-2"></i>GreenRoots Melbourne
+        <i class="bi bi-tree me-2" aria-hidden="true"></i>GreenRoots Melbourne
       </RouterLink>
 
       <button

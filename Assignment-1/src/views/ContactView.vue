@@ -135,7 +135,7 @@ function handleSubmit() {
           </div>
 
           <button type="submit" class="btn btn-greenroots w-100" :disabled="!isFormValid">
-            <i class="bi bi-send me-2"></i>Send Message
+            <i class="bi bi-send me-2" aria-hidden="true"></i>Send Message
           </button>
         </form>
       </div>

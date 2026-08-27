@@ -3,7 +3,7 @@
     <div class="container">
       <div class="row g-4">
         <div class="col-12 col-md-4">
-          <h5><i class="bi bi-tree me-2"></i>GreenRoots Melbourne</h5>
+          <h5><i class="bi bi-tree me-2" aria-hidden="true"></i>GreenRoots Melbourne</h5>
           <p class="small">
             A not-for-profit dedicated to urban greening, community tree planting,
             and biodiversity conservation across Greater Melbourne.
@@ -21,9 +21,18 @@
         <div class="col-6 col-md-4">
           <h6>Connect</h6>
           <ul class="list-unstyled small">
-            <li><i class="bi bi-envelope me-1"></i> info@greenroots.org.au</li>
-            <li><i class="bi bi-telephone me-1"></i> (03) 9000 1234</li>
-            <li><i class="bi bi-geo-alt me-1"></i> Melbourne, VIC</li>
+            <li>
+              <i class="bi bi-envelope me-1" aria-hidden="true"></i>
+              <span class="visually-hidden">Email:</span> info@greenroots.org.au
+            </li>
+            <li>
+              <i class="bi bi-telephone me-1" aria-hidden="true"></i>
+              <span class="visually-hidden">Phone:</span> (03) 9000 1234
+            </li>
+            <li>
+              <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>
+              <span class="visually-hidden">Location:</span> Melbourne, VIC
+            </li>
           </ul>
         </div>
       </div>
