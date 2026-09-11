@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { sanitizeInput } from '@/utils/security'
 
 const { form, errors, validateField, validateAll, isFormValid, resetForm } = useFormValidation(
   ['name', 'email', 'subject', 'message'],
@@ -20,8 +21,11 @@ function handleSubmit() {
   if (validateAll()) {
     const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]')
     submissions.push({
-      ...form,
-      timestamp: new Date().toISOString()
+      name: sanitizeInput(form.name),
+      email: sanitizeInput(form.email),
+      subject: sanitizeInput(form.subject),
+      message: sanitizeInput(form.message),
+      timestamp: new Date().toISOString(),
     })
     localStorage.setItem('contactSubmissions', JSON.stringify(submissions))
 
