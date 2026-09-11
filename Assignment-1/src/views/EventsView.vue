@@ -1,12 +1,15 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useEventStore } from '@/stores/eventStore'
+import { useRatingStore } from '@/stores/ratingStore'
 import EventCard from '@/components/common/EventCard.vue'
 
 const store = useEventStore()
+const ratingStore = useRatingStore()
 
 onMounted(() => {
   store.loadEvents()
+  ratingStore.loadRatings()
 })
 </script>
 
@@ -15,7 +18,7 @@ onMounted(() => {
     <h1 class="mb-2">Community Greening Events</h1>
     <p class="text-muted mb-4">
       {{ store.totalEvents }} events across Greater Melbourne &middot; Average rating:
-      {{ store.averageRating }} / 5
+      {{ ratingStore.getOverallAverage() || store.averageRating }} / 5
     </p>
 
     <div class="row g-3 mb-4">

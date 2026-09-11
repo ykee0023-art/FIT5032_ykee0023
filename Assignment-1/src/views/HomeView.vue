@@ -1,12 +1,15 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useEventStore } from '@/stores/eventStore'
+import { useRatingStore } from '@/stores/ratingStore'
 import EventCard from '@/components/common/EventCard.vue'
 
 const store = useEventStore()
+const ratingStore = useRatingStore()
 
 onMounted(() => {
   store.loadEvents()
+  ratingStore.loadRatings()
 })
 </script>
 
@@ -50,7 +53,7 @@ onMounted(() => {
           <div class="col-6 col-md-3">
             <div class="p-3">
               <i class="bi bi-star fs-1 text-greenroots" aria-hidden="true"></i>
-              <h3 class="fw-bold mt-2">{{ store.averageRating }}</h3>
+              <h3 class="fw-bold mt-2">{{ ratingStore.getOverallAverage() || store.averageRating }}</h3>
               <p class="text-muted mb-0">Avg Rating</p>
             </div>
           </div>
