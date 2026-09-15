@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { isAuthenticated } from '../auth'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
-import LoginView from '../views/LoginView.vue'
+import AdminLoginView from '../views/AdminLoginView.vue'
 import AccessDeniedView from '../views/AccessDeniedView.vue'
 import AddBookView from '../views/AddBookView.vue'
 import FirebaseSigninView from '../views/FirebaseSigninView.vue'
@@ -23,7 +23,7 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginView
+    component: AdminLoginView
   },
   {
     path: '/FireRegister',
