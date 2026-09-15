@@ -6,7 +6,7 @@
       <ul class="nav nav-pills">
         <li class="nav-item">
           <router-link to="/" class="nav-link" active-class="active" aria-current="page"
-            >Home (Week 5)</router-link
+            >Home (Week 7)</router-link
           >
         </li>
         <li class="nav-item">
