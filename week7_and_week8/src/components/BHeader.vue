@@ -24,7 +24,7 @@
         <li class="nav-item">
           <router-link to="/FireRegister" class="nav-link" active-class="active">Firebase Register</router-link>
         </li>
-        <li class="nav-item" v-if="isAuthenticated">
+        <li class="nav-item" v-if="isAuthenticated || isFirebaseUser">
           <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
         </li>
       </ul>
@@ -33,12 +33,27 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { isAuthenticated } from '../auth'
 import { useRouter } from 'vue-router'
+import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth'
 
 const router = useRouter()
+const auth = getAuth()
+const isFirebaseUser = ref(false)
+
+onAuthStateChanged(auth, (user) => {
+  isFirebaseUser.value = !!user
+})
 
 const logout = () => {
+  console.log('Current user before logout:', auth.currentUser)
+  signOut(auth).then(() => {
+    console.log('Firebase sign out successful!')
+    console.log('Current user after logout:', auth.currentUser)
+  }).catch((error) => {
+    console.log(error)
+  })
   isAuthenticated.value = false
   router.push('/login')
 }
