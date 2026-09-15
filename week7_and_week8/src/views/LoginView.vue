@@ -2,7 +2,7 @@
   <div class="container mt-5">
     <div class="row">
       <div class="col-sm-6 offset-sm-3">
-        <h1 class="text-center">Login</h1>
+        <h1 class="text-center">Admin Login</h1>
         <form @submit.prevent="login">
           <div class="mb-3">
             <label for="username" class="form-label">Username</label>
