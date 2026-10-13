@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import PrimeVue from 'primevue/config'
+import Aura from '@primeuix/themes/aura'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/authStore'
@@ -15,6 +17,8 @@ async function bootstrap() {
   const pinia = createPinia()
   app.use(pinia)
   app.use(router)
+  // The rest of the site is light-only Bootstrap, so keep PrimeVue tables light even in OS dark mode
+  app.use(PrimeVue, { theme: { preset: Aura, options: { darkModeSelector: 'none' } } })
 
   const authStore = useAuthStore()
   await authStore.initAuth()
