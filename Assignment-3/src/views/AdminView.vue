@@ -27,9 +27,12 @@ const adminCount = computed(() =>
 
 <template>
   <div class="container py-5">
-    <div class="d-flex align-items-center mb-4">
-      <h1 class="me-3">Admin Dashboard</h1>
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+      <h1 class="mb-0">Admin Dashboard</h1>
       <span class="badge bg-danger fs-6">ADMIN ONLY</span>
+      <RouterLink to="/admin/registrations" class="btn btn-greenroots ms-md-auto">
+        <i class="bi bi-table me-1" aria-hidden="true"></i>View volunteer registrations
+      </RouterLink>
     </div>
 
     <div v-if="loadError" class="alert alert-danger" role="alert">{{ loadError }}</div>
