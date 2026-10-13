@@ -28,12 +28,11 @@ const {
   errors: regErrors,
   validateField: regValidateField,
   validateAll: regValidateAll,
-} = useFormValidation(['regName', 'regEmail', 'regPassword', 'regConfirm', 'regRole'], {
+} = useFormValidation(['regName', 'regEmail', 'regPassword', 'regConfirm'], {
   regName: { type: 'required', label: 'Full name' },
   regEmail: { type: 'email', label: 'Email' },
   regPassword: { type: 'password', label: 'Password' },
   regConfirm: { type: 'required', label: 'Confirm password' },
-  regRole: { type: 'required', label: 'Role' },
 })
 
 const confirmPasswordError = computed(() => {
@@ -66,12 +65,7 @@ async function handleRegister() {
   if (confirmPasswordError.value) return
 
   loading.value = true
-  const result = await authStore.register(
-    regForm.regName,
-    regForm.regEmail,
-    regForm.regPassword,
-    regForm.regRole,
-  )
+  const result = await authStore.register(regForm.regName, regForm.regEmail, regForm.regPassword)
   loading.value = false
 
   if (!result.success) {
@@ -260,23 +254,9 @@ function switchMode() {
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label for="reg-role" class="form-label">
-                  Role <span class="text-danger">*</span>
-                </label>
-                <select
-                  id="reg-role"
-                  v-model="regForm.regRole"
-                  class="form-select"
-                  :class="{ 'is-invalid': regErrors.regRole }"
-                  @blur="regValidateField('regRole')"
-                >
-                  <option value="" disabled>Select your role</option>
-                  <option value="volunteer">Volunteer</option>
-                  <option value="admin">Admin</option>
-                </select>
-                <div class="invalid-feedback">{{ regErrors.regRole }}</div>
-              </div>
+              <p class="form-text mb-3">
+                New accounts join as volunteers. Admin access is granted by GreenRoots staff.
+              </p>
 
               <button
                 type="submit"
@@ -294,10 +274,6 @@ function switchMode() {
             </form>
           </div>
         </div>
-
-        <p class="text-center text-muted small mt-3">
-          Demo admin: admin@greenroots.org.au / Admin123
-        </p>
       </div>
     </div>
   </div>
