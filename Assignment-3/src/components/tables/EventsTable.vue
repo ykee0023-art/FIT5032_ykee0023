@@ -7,6 +7,7 @@ import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useRatingStore } from '@/stores/ratingStore'
+import ExportButtons from '@/components/tables/ExportButtons.vue'
 
 const props = defineProps({
   events: {
@@ -51,6 +52,22 @@ const rows = computed(() =>
 
 const eventTypes = computed(() => [...new Set(props.events.map((e) => e.type))].sort())
 
+// processedData is what the table shows after filtering and sorting (PrimeVue's own exportCSV uses it)
+const tableRef = ref(null)
+const visibleRows = computed(() => tableRef.value?.processedData ?? rows.value)
+
+const exportColumns = [
+  { header: 'Event', value: (e) => e.name },
+  { header: 'Date', value: (e) => e.dateLabel },
+  { header: 'Time', value: (e) => e.time },
+  { header: 'Suburb', value: (e) => e.suburb },
+  { header: 'Location', value: (e) => e.location },
+  { header: 'Type', value: (e) => e.type },
+  { header: 'Spots left', value: (e) => e.spots },
+  { header: 'Total spots', value: (e) => e.totalSpots },
+  { header: 'Rating', value: (e) => e.rating.toFixed(1) },
+]
+
 function clearFilters() {
   filters.value = createFilters()
 }
@@ -58,6 +75,7 @@ function clearFilters() {
 
 <template>
   <DataTable
+    ref="tableRef"
     v-model:filters="filters"
     :value="rows"
     :loading="loading"
@@ -92,6 +110,13 @@ function clearFilters() {
           <button type="button" class="btn btn-sm btn-outline-secondary" @click="clearFilters">
             Clear filters
           </button>
+          <ExportButtons
+            :rows="visibleRows"
+            :columns="exportColumns"
+            title="Events"
+            file-base="greenroots-events"
+            noun="events"
+          />
         </div>
       </div>
     </template>

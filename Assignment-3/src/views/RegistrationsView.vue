@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -7,6 +7,7 @@ import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import { FilterMatchMode } from '@primevue/core/api'
 import { db } from '@/firebase/init'
+import ExportButtons from '@/components/tables/ExportButtons.vue'
 
 const STATUSES = ['confirmed', 'waitlist', 'cancelled']
 const AGE_GROUPS = ['Under 18', '18-24', '25-34', '35-44', '45-54', '55-64', '65+']
@@ -39,6 +40,29 @@ const filters = ref(createFilters())
 function clearFilters() {
   filters.value = createFilters()
 }
+
+// processedData is what the table shows after filtering and sorting (PrimeVue's own exportCSV uses it)
+const tableRef = ref(null)
+const visibleRows = computed(() => tableRef.value?.processedData ?? registrations.value)
+
+// "0412 345 678": with spaces Excel keeps the number as text instead of dropping the leading 0
+function formatPhone(phone) {
+  const digits = (phone || '').replace(/\s/g, '')
+  return /^04\d{8}$/.test(digits)
+    ? `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`
+    : phone
+}
+
+const exportColumns = [
+  { header: 'Name', value: (r) => r.name },
+  { header: 'Email', value: (r) => r.email },
+  { header: 'Phone', value: (r) => formatPhone(r.phone) },
+  { header: 'Event', value: (r) => r.eventName },
+  { header: 'Suburb', value: (r) => r.suburb },
+  { header: 'Age group', value: (r) => r.ageGroup },
+  { header: 'Status', value: (r) => r.status },
+  { header: 'Registered', value: (r) => r.createdLabel },
+]
 
 // Admin only: the route guard hides this page and Firestore rules reject the query for anyone else
 onMounted(async () => {
@@ -93,6 +117,7 @@ onMounted(async () => {
     <div v-if="loadError" class="alert alert-danger" role="alert">{{ loadError }}</div>
 
     <DataTable
+      ref="tableRef"
       v-model:filters="filters"
       v-model:selection="selected"
       :value="registrations"
@@ -141,6 +166,13 @@ onMounted(async () => {
             <button type="button" class="btn btn-sm btn-outline-secondary" @click="clearFilters">
               Clear filters
             </button>
+            <ExportButtons
+              :rows="visibleRows"
+              :columns="exportColumns"
+              title="Volunteer registrations"
+              file-base="greenroots-registrations"
+              noun="registrations"
+            />
           </div>
         </div>
       </template>
