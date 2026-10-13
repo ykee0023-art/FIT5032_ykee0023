@@ -6,10 +6,15 @@ import { useEventStore } from '@/stores/eventStore'
 const authStore = useAuthStore()
 const eventStore = useEventStore()
 const users = ref([])
+const loadError = ref('')
 
-onMounted(() => {
-  users.value = authStore.getAllUsers()
+onMounted(async () => {
   eventStore.loadEvents()
+  try {
+    users.value = await authStore.getAllUsers()
+  } catch {
+    loadError.value = 'Could not load users. Please refresh the page.'
+  }
 })
 
 const volunteerCount = computed(() =>
@@ -26,6 +31,8 @@ const adminCount = computed(() =>
       <h1 class="me-3">Admin Dashboard</h1>
       <span class="badge bg-danger fs-6">ADMIN ONLY</span>
     </div>
+
+    <div v-if="loadError" class="alert alert-danger" role="alert">{{ loadError }}</div>
 
     <div class="row g-4 mb-5">
       <div class="col-6 col-md-3">

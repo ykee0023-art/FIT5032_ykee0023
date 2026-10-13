@@ -69,8 +69,10 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore()
+  // Wait for Firebase to restore the session, otherwise a refresh on /admin is sent to /login
+  await authStore.initAuth()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }

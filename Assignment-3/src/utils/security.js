@@ -1,11 +1,3 @@
-export async function hashPassword(password) {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-}
-
 export function sanitizeInput(input) {
   if (typeof input !== 'string' || !input) return ''
   return input
@@ -27,8 +19,4 @@ export function validatePasswordStrength(password) {
     return { valid: false, message: 'Password must contain at least one number' }
   }
   return { valid: true, message: '' }
-}
-
-export function generateId() {
-  return crypto.randomUUID()
 }
