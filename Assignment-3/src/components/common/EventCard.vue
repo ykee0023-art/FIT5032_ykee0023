@@ -87,14 +87,14 @@ function handleRate(newRating) {
           <span :class="isFull ? 'text-danger' : 'text-success'" class="small fw-bold">
             {{ isFull ? 'Full' : `${event.spots} spots left` }}
           </span>
-          <button
+          <RouterLink
             class="btn btn-sm"
             :class="isFull ? 'btn-outline-secondary' : 'btn-greenroots'"
-            :disabled="isFull"
+            :to="{ path: '/get-involved', query: { event: event.id } }"
             :aria-label="`${isFull ? 'Join waitlist for' : 'Register for'} ${event.name}`"
           >
-            {{ isFull ? 'Waitlist' : 'Register' }}
-          </button>
+            {{ isFull ? 'Join waitlist' : 'Register' }}
+          </RouterLink>
         </div>
       </div>
     </div>

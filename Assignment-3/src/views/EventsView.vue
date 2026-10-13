@@ -50,8 +50,19 @@ onMounted(() => {
     </div>
 
     <p class="text-muted small" role="status" aria-live="polite">
-      Showing {{ store.filteredEvents.length }} of {{ store.totalEvents }} events
+      <template v-if="store.loading">Loading events...</template>
+      <template v-else>
+        Showing {{ store.filteredEvents.length }} of {{ store.totalEvents }} events
+      </template>
     </p>
+
+    <div v-if="store.loadError" class="alert alert-danger" role="alert">
+      {{ store.loadError }}
+    </div>
+
+    <div v-if="store.loading && store.events.length === 0" class="text-center py-5">
+      <div class="spinner-border text-success" aria-hidden="true"></div>
+    </div>
 
     <div class="row g-4">
       <div
@@ -63,7 +74,10 @@ onMounted(() => {
       </div>
     </div>
 
-    <div v-if="store.filteredEvents.length === 0" class="text-center py-5">
+    <div
+      v-if="!store.loading && !store.loadError && store.filteredEvents.length === 0"
+      class="text-center py-5"
+    >
       <i class="bi bi-search display-4 text-muted" aria-hidden="true"></i>
       <p class="text-muted fs-5 mt-3">No events found matching your search.</p>
       <button class="btn btn-greenroots" @click="store.clearFilters()">View all events</button>

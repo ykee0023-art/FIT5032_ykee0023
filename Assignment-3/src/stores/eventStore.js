@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import eventsData from '@/data/events.json'
+import { collection, getDocs, orderBy, query as firestoreQuery } from 'firebase/firestore'
+import { db } from '@/firebase/init'
 
 export const useEventStore = defineStore('events', () => {
   const events = ref([])
+  const loading = ref(false)
+  const loadError = ref('')
   const searchQuery = ref('')
   const selectedType = ref('')
 
@@ -41,8 +44,17 @@ export const useEventStore = defineStore('events', () => {
     return events.value.reduce((acc, e) => acc + e.spots, 0)
   })
 
-  function loadEvents() {
-    events.value = eventsData
+  async function loadEvents() {
+    loading.value = true
+    loadError.value = ''
+    try {
+      const snapshot = await getDocs(firestoreQuery(collection(db, 'events'), orderBy('date')))
+      events.value = snapshot.docs.map((d) => d.data())
+    } catch {
+      loadError.value = 'Could not load events. Please check your connection and refresh the page.'
+    } finally {
+      loading.value = false
+    }
   }
 
   function clearFilters() {
@@ -52,6 +64,8 @@ export const useEventStore = defineStore('events', () => {
 
   return {
     events,
+    loading,
+    loadError,
     searchQuery,
     selectedType,
     filteredEvents,
