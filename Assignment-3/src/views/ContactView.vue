@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { db } from '@/firebase/init'
 import { useFormValidation } from '@/composables/useFormValidation'
 import { sanitizeInput } from '@/utils/security'
 
@@ -15,23 +17,32 @@ const { form, errors, validateField, validateAll, isFormValid, resetForm } = use
 
 const submitted = ref(false)
 const submitSuccess = ref(false)
+const submitting = ref(false)
+const submitError = ref('')
 
-function handleSubmit() {
+async function handleSubmit() {
   submitted.value = true
-  if (validateAll()) {
-    const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]')
-    submissions.push({
+  submitError.value = ''
+  if (!validateAll() || submitting.value) return
+
+  submitting.value = true
+  try {
+    // Firestore rules accept exactly these fields, with length limits matching the maxlength attributes
+    await addDoc(collection(db, 'messages'), {
       name: sanitizeInput(form.name),
       email: sanitizeInput(form.email),
       subject: sanitizeInput(form.subject),
       message: sanitizeInput(form.message),
-      timestamp: new Date().toISOString(),
+      createdAt: serverTimestamp(),
     })
-    localStorage.setItem('contactSubmissions', JSON.stringify(submissions))
 
     submitSuccess.value = true
     resetForm()
     submitted.value = false
+  } catch {
+    submitError.value = 'Sorry, we could not send your message. Please try again.'
+  } finally {
+    submitting.value = false
   }
 }
 </script>
@@ -54,6 +65,7 @@ function handleSubmit() {
             @click="submitSuccess = false"
           ></button>
         </div>
+        <div v-if="submitError" class="alert alert-danger" role="alert">{{ submitError }}</div>
 
         <form @submit.prevent="handleSubmit" novalidate>
           <div class="mb-3">
@@ -64,6 +76,8 @@ function handleSubmit() {
               id="name"
               v-model="form.name"
               type="text"
+              autocomplete="name"
+              maxlength="100"
               class="form-control"
               :class="{
                 'is-invalid': errors.name,
@@ -83,6 +97,8 @@ function handleSubmit() {
               id="email"
               v-model="form.email"
               type="email"
+              autocomplete="email"
+              maxlength="254"
               class="form-control"
               :class="{
                 'is-invalid': errors.email,
@@ -125,6 +141,7 @@ function handleSubmit() {
             <textarea
               id="message"
               v-model="form.message"
+              maxlength="2000"
               class="form-control"
               :class="{
                 'is-invalid': errors.message,
@@ -138,8 +155,18 @@ function handleSubmit() {
             <div class="form-text">{{ form.message.length }} / 10 minimum characters</div>
           </div>
 
-          <button type="submit" class="btn btn-greenroots w-100" :disabled="!isFormValid">
-            <i class="bi bi-send me-2" aria-hidden="true"></i>Send Message
+          <button
+            type="submit"
+            class="btn btn-greenroots w-100"
+            :disabled="!isFormValid || submitting"
+          >
+            <span
+              v-if="submitting"
+              class="spinner-border spinner-border-sm me-2"
+              aria-hidden="true"
+            ></span>
+            <i v-else class="bi bi-send me-2" aria-hidden="true"></i>
+            {{ submitting ? 'Sending...' : 'Send Message' }}
           </button>
         </form>
       </div>

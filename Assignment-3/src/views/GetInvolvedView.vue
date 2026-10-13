@@ -1,11 +1,21 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { db } from '@/firebase/init'
+import { useAuthStore } from '@/stores/authStore'
+import { useEventStore } from '@/stores/eventStore'
 import { useFormValidation } from '@/composables/useFormValidation'
 import { sanitizeInput } from '@/utils/security'
 
+const route = useRoute()
+const authStore = useAuthStore()
+const eventStore = useEventStore()
+
 const { form, errors, validateField, validateAll, isFormValid, resetForm } = useFormValidation(
-  ['name', 'email', 'phone', 'age', 'skills', 'message'],
+  ['eventId', 'name', 'email', 'phone', 'age', 'skills', 'message'],
   {
+    eventId: { type: 'required', label: 'Event' },
     name: { type: 'required', label: 'Name' },
     email: { type: 'email', label: 'Email' },
     phone: { type: 'phone', label: 'Phone' },
@@ -16,26 +26,78 @@ const { form, errors, validateField, validateAll, isFormValid, resetForm } = use
 )
 
 const submitted = ref(false)
-const submitSuccess = ref(false)
+const submitting = ref(false)
+const submitError = ref('')
+const confirmation = ref('')
 
-function handleSubmit() {
+const selectedEvent = computed(() => eventStore.events.find((e) => e.id === form.eventId))
+
+function formatDate(date) {
+  return new Date(date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+// Same age bands as the Mockaroo seed data, so the admin table and charts can group them
+function ageGroupFor(age) {
+  if (age < 18) return 'Under 18'
+  if (age < 25) return '18-24'
+  if (age < 35) return '25-34'
+  if (age < 45) return '35-44'
+  if (age < 55) return '45-54'
+  if (age < 65) return '55-64'
+  return '65+'
+}
+
+function prefillUser() {
+  form.name = authStore.currentUser?.name || ''
+  form.email = authStore.currentUser?.email || ''
+}
+
+onMounted(async () => {
+  prefillUser()
+  await eventStore.loadEvents()
+  // ?event=ID comes from the Register buttons on the events page
+  const requested = Number(route.query.event)
+  if (eventStore.events.some((e) => e.id === requested)) {
+    form.eventId = requested
+  }
+})
+
+async function handleSubmit() {
   submitted.value = true
-  if (validateAll()) {
-    const registrations = JSON.parse(localStorage.getItem('volunteerRegistrations') || '[]')
-    registrations.push({
+  submitError.value = ''
+  if (!validateAll() || submitting.value) return
+
+  const event = selectedEvent.value
+  const hasSpot = event.spots > 0
+  submitting.value = true
+  try {
+    await addDoc(collection(db, 'registrations'), {
+      uid: authStore.currentUser.id,
       name: sanitizeInput(form.name),
       email: sanitizeInput(form.email),
       phone: sanitizeInput(form.phone),
+      eventId: event.id,
+      eventName: event.name,
+      suburb: event.suburb,
       age: form.age,
-      skills: sanitizeInput(form.skills),
+      ageGroup: ageGroupFor(form.age),
+      interest: sanitizeInput(form.skills),
       message: sanitizeInput(form.message),
-      timestamp: new Date().toISOString(),
+      status: hasSpot ? 'confirmed' : 'waitlist',
+      source: 'website',
+      createdAt: serverTimestamp(),
     })
-    localStorage.setItem('volunteerRegistrations', JSON.stringify(registrations))
 
-    submitSuccess.value = true
+    confirmation.value = hasSpot
+      ? `You're registered for ${event.name} on ${formatDate(event.date)}. See you there!`
+      : `${event.name} is full, so we've added you to the waitlist and will contact you if a spot opens up.`
     resetForm()
+    prefillUser()
     submitted.value = false
+  } catch {
+    submitError.value = 'Sorry, we could not save your registration. Please try again.'
+  } finally {
+    submitting.value = false
   }
 }
 </script>
@@ -84,18 +146,51 @@ function handleSubmit() {
           <div class="card-body p-4">
             <h4 class="card-title mb-3">Volunteer Registration</h4>
 
-            <div v-if="submitSuccess" class="alert alert-success alert-dismissible" role="alert">
-              Thank you for registering! We will contact you about upcoming events.
+            <div v-if="confirmation" class="alert alert-success alert-dismissible" role="alert">
+              {{ confirmation }}
               <button
                 type="button"
                 class="btn-close"
                 aria-label="Dismiss confirmation message"
-                @click="submitSuccess = false"
+                @click="confirmation = ''"
               ></button>
+            </div>
+            <div v-if="submitError" class="alert alert-danger" role="alert">{{ submitError }}</div>
+            <div v-if="eventStore.loadError" class="alert alert-danger" role="alert">
+              {{ eventStore.loadError }}
             </div>
 
             <form @submit.prevent="handleSubmit" novalidate>
               <div class="row g-3">
+                <div class="col-12">
+                  <label for="vol-event" class="form-label">
+                    Event <span class="text-danger">*</span>
+                  </label>
+                  <select
+                    id="vol-event"
+                    v-model.number="form.eventId"
+                    class="form-select"
+                    :class="{
+                      'is-invalid': errors.eventId,
+                      'is-valid': submitted && !errors.eventId && form.eventId
+                    }"
+                    :disabled="eventStore.loading && eventStore.events.length === 0"
+                    @blur="validateField('eventId')"
+                  >
+                    <option value="" disabled>
+                      {{ eventStore.loading ? 'Loading events...' : 'Select an event' }}
+                    </option>
+                    <option v-for="event in eventStore.events" :key="event.id" :value="event.id">
+                      {{ event.name }} ({{ formatDate(event.date) }}) &ndash;
+                      {{ event.spots > 0 ? `${event.spots} spots left` : 'full, join waitlist' }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ errors.eventId }}</div>
+                  <div v-if="selectedEvent" class="form-text">
+                    {{ selectedEvent.time }} at {{ selectedEvent.location }}, {{ selectedEvent.suburb }}
+                  </div>
+                </div>
+
                 <div class="col-12 col-sm-6">
                   <label for="vol-name" class="form-label">
                     Full Name <span class="text-danger">*</span>
@@ -104,6 +199,7 @@ function handleSubmit() {
                     id="vol-name"
                     v-model="form.name"
                     type="text"
+                    autocomplete="name"
                     class="form-control"
                     :class="{
                       'is-invalid': errors.name,
@@ -123,6 +219,7 @@ function handleSubmit() {
                     id="vol-email"
                     v-model="form.email"
                     type="email"
+                    autocomplete="email"
                     class="form-control"
                     :class="{
                       'is-invalid': errors.email,
@@ -142,6 +239,7 @@ function handleSubmit() {
                     id="vol-phone"
                     v-model="form.phone"
                     type="tel"
+                    autocomplete="tel"
                     class="form-control"
                     :class="{
                       'is-invalid': errors.phone,
@@ -219,9 +317,15 @@ function handleSubmit() {
                   <button
                     type="submit"
                     class="btn btn-greenroots w-100"
-                    :disabled="!isFormValid"
+                    :disabled="!isFormValid || submitting"
                   >
-                    <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Register as Volunteer
+                    <span
+                      v-if="submitting"
+                      class="spinner-border spinner-border-sm me-2"
+                      aria-hidden="true"
+                    ></span>
+                    <i v-else class="bi bi-person-plus me-2" aria-hidden="true"></i>
+                    {{ submitting ? 'Registering...' : 'Register as Volunteer' }}
                   </button>
                 </div>
               </div>
