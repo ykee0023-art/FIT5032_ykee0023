@@ -1,17 +1,19 @@
-# GreenRoots Melbourne
+# GreenRoots Melbourne — FIT5032 Assignment 3
 
 A responsive single-page web application for **GreenRoots Melbourne**, a fictional not-for-profit
 organisation dedicated to urban greening, community tree planting, and biodiversity conservation
 across Greater Melbourne.
 
-Built with Vue.js 3 for **FIT5032 – Internet Applications Development**, Assignment 1.2.
+Built with Vue.js 3 for **FIT5032 – Internet Applications Development**. This Assignment 3 version
+extends the A1.2 / A1.3 application; the original A1 code is kept unchanged in the repository's
+`Assignment-1/` folder.
 
 | | |
 |---|---|
 | **Student** | Yunpeng Ke |
 | **Student ID** | 35366397 |
 | **Unit** | FIT5032 – Internet Applications Development |
-| **Assessment** | A1.2 – Basic Application Development V1 |
+| **Assessment** | A3 – Advanced Application Development (extends A1.2 / A1.3) |
 
 ---
 
