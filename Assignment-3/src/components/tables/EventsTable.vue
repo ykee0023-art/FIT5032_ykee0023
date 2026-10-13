@@ -96,7 +96,9 @@ function clearFilters() {
       </div>
     </template>
 
-    <template #empty>No events match your search. Try clearing the filters.</template>
+    <template #empty>
+      <span v-if="!loading">No events match your search. Try clearing the filters.</span>
+    </template>
     <template #loading>Loading events...</template>
 
     <Column field="name" header="Event" sortable :show-filter-menu="false" style="min-width: 15rem">

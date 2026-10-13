@@ -145,7 +145,9 @@ onMounted(async () => {
         </div>
       </template>
 
-      <template #empty>No registrations match your search. Try clearing the filters.</template>
+      <template #empty>
+        <span v-if="!loading">No registrations match your search. Try clearing the filters.</span>
+      </template>
       <template #loading>Loading registrations...</template>
 
       <Column selection-mode="multiple" header-style="width: 3rem" />
