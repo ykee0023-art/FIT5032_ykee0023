@@ -1,0 +1,84 @@
+rules_version = '2';
+
+// Any path not matched below is denied by default.
+// Cloud Functions use the Admin SDK, which bypasses these rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isText(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      // Sign-up can only create a volunteer; admins are promoted in the Firebase console
+      allow create: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt'])
+        && isText(request.resource.data.name, 1, 100)
+        && isText(request.resource.data.email, 3, 254)
+        && request.resource.data.role == 'volunteer'
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        || (isSelf(uid)
+          && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt'])
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'createdAt']));
+      allow delete: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /registrations/{registrationId} {
+      allow read: if (isSignedIn() && resource.data.uid == request.auth.uid) || isAdmin();
+      allow create: if isAdmin()
+        || (isSignedIn()
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.createdAt == request.time);
+      allow update, delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read, delete: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'subject', 'message', 'createdAt'])
+        && isText(request.resource.data.name, 1, 100)
+        && isText(request.resource.data.email, 3, 254)
+        && isText(request.resource.data.subject, 1, 150)
+        && isText(request.resource.data.message, 10, 2000)
+        && request.resource.data.createdAt == request.time;
+    }
+
+    // Written only by Cloud Functions
+    match /emailLogs/{logId} {
+      allow read: if isAdmin();
+    }
+
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+      allow update: if isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+      allow delete: if isAdmin();
+    }
+  }
+}
