@@ -4,27 +4,59 @@ import { useRoute, useRouter } from 'vue-router'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useEventStore } from '@/stores/eventStore'
+import { useGeolocation } from '@/composables/useGeolocation'
+import { circlePolygon, formatDistance, haversineKm } from '@/utils/geo'
+import PlaceSearch from '@/components/map/PlaceSearch.vue'
 
 const MELBOURNE = [144.9631, -37.8136]
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
+const RADIUS_OPTIONS = [5, 10, 20, 50]
+const EMPTY_GEOJSON = { type: 'FeatureCollection', features: [] }
 
 const store = useEventStore()
 const route = useRoute()
 const router = useRouter()
+const { locating, error: locationError, locate } = useGeolocation()
 
 const mapContainer = ref(null)
+const placeSearch = ref(null)
 const mapReady = ref(false)
 const mapError = ref('')
 const selectedId = ref(null)
+// Starting point from place search or the browser location: { label, lat, lng }
+const origin = ref(null)
+const radiusKm = ref(0)
 
 // Mapbox objects are kept out of Vue's reactivity, which would wrap them in proxies
 let map = null
 let activePopup = null
+let originMarker = null
 const markersById = new Map()
 
 const mapEvents = computed(() =>
   store.events.filter((event) => Number.isFinite(event.lat) && Number.isFinite(event.lng)),
 )
+
+// Events with their straight-line distance from the starting point, nearest first
+const listEvents = computed(() => {
+  if (!origin.value) return mapEvents.value.map((event) => ({ event, distanceKm: null }))
+  return mapEvents.value
+    .map((event) => ({ event, distanceKm: haversineKm(origin.value, event) }))
+    .filter(({ distanceKm }) => !radiusKm.value || distanceKm <= radiusKm.value)
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+})
+
+const listSummary = computed(() => {
+  if (store.loading) return 'Loading events...'
+  const count = listEvents.value.length
+  const events = `${count} ${count === 1 ? 'event' : 'events'}`
+  if (!origin.value) return `${events}, soonest first.`
+  if (radiusKm.value && count === 0) {
+    return `No events within ${radiusKm.value} km of ${origin.value.label}. Try a larger distance.`
+  }
+  if (radiusKm.value) return `${events} within ${radiusKm.value} km of ${origin.value.label}, nearest first.`
+  return `${events}, nearest to ${origin.value.label} first.`
+})
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString('en-AU', {
@@ -96,6 +128,79 @@ function addMarkers() {
     marker.getElement().setAttribute('aria-label', `${event.name}, ${event.suburb}`)
     markersById.set(event.id, marker)
   }
+  updateMarkerVisibility()
+}
+
+// Markers outside the chosen radius are hidden so the map matches the list
+function updateMarkerVisibility() {
+  const visible = new Set(listEvents.value.map(({ event }) => event.id))
+  for (const [id, marker] of markersById) {
+    const shown = visible.has(id)
+    if (!shown && marker.getPopup().isOpen()) marker.togglePopup()
+    marker.getElement().style.display = shown ? '' : 'none'
+  }
+}
+
+function addSearchLayers() {
+  map.addSource('search-radius', { type: 'geojson', data: EMPTY_GEOJSON })
+  map.addLayer({
+    id: 'search-radius-fill',
+    type: 'fill',
+    source: 'search-radius',
+    paint: { 'fill-color': '#0d6efd', 'fill-opacity': 0.08 },
+  })
+  map.addLayer({
+    id: 'search-radius-line',
+    type: 'line',
+    source: 'search-radius',
+    paint: { 'line-color': '#0d6efd', 'line-width': 2, 'line-dasharray': [2, 2] },
+  })
+}
+
+function showOrigin() {
+  originMarker?.remove()
+  originMarker = null
+  if (!map || !mapReady.value) return
+
+  const circle = origin.value && radiusKm.value ? circlePolygon(origin.value, radiusKm.value) : null
+  map.getSource('search-radius')?.setData(circle ?? EMPTY_GEOJSON)
+  if (!origin.value) return
+
+  originMarker = new mapboxgl.Marker({ color: '#0d6efd' })
+    .setLngLat([origin.value.lng, origin.value.lat])
+    .addTo(map)
+  originMarker.getElement().setAttribute('role', 'img')
+  originMarker.getElement().setAttribute('aria-label', `Starting point: ${origin.value.label}`)
+
+  // Frame the radius, or the starting point and the three nearest events
+  const bounds = new mapboxgl.LngLatBounds()
+  bounds.extend([origin.value.lng, origin.value.lat])
+  if (circle) {
+    for (const point of circle.geometry.coordinates[0]) bounds.extend(point)
+  } else {
+    for (const { event } of listEvents.value.slice(0, 3)) bounds.extend([event.lng, event.lat])
+  }
+  map.fitBounds(bounds, { padding: 60, maxZoom: 14 })
+}
+
+function setOrigin(place) {
+  origin.value = place
+  locationError.value = ''
+}
+
+async function useMyLocation() {
+  const position = await locate()
+  if (position) {
+    placeSearch.value?.clear()
+    setOrigin({ label: 'your location', ...position })
+  }
+}
+
+function clearOrigin() {
+  origin.value = null
+  radiusKm.value = 0
+  placeSearch.value?.clear()
+  fitToEvents()
 }
 
 function fitToEvents() {
@@ -143,6 +248,7 @@ function initMap() {
   map.addControl(new mapboxgl.NavigationControl(), 'top-right')
   map.addControl(new mapboxgl.ScaleControl({ unit: 'metric' }), 'bottom-left')
   map.on('load', () => {
+    addSearchLayers()
     mapReady.value = true
   })
   map.on('error', () => {
@@ -156,10 +262,14 @@ function initMap() {
 watch([mapReady, mapEvents], ([ready, events]) => {
   if (!ready || events.length === 0) return
   addMarkers()
+  if (origin.value) showOrigin()
   const requested = events.find((event) => String(event.id) === String(route.query.event))
   if (requested) showOnMap(requested, { keepFocus: false })
   else fitToEvents()
 })
+
+watch([origin, radiusKm], showOrigin)
+watch(listEvents, updateMarkerVisibility)
 
 onMounted(() => {
   store.loadEvents()
@@ -185,6 +295,59 @@ onBeforeUnmount(() => {
       {{ store.loadError }}
     </div>
 
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-6">
+            <PlaceSearch ref="placeSearch" @select="setOrigin" />
+          </div>
+          <div class="col-12 col-sm-6 col-md-3">
+            <button
+              type="button"
+              class="btn btn-outline-greenroots w-100"
+              :disabled="locating"
+              @click="useMyLocation"
+            >
+              <span
+                v-if="locating"
+                class="spinner-border spinner-border-sm me-1"
+                aria-hidden="true"
+              ></span>
+              <i v-else class="bi bi-crosshair me-1" aria-hidden="true"></i>
+              {{ locating ? 'Finding you...' : 'Use my location' }}
+            </button>
+          </div>
+          <div class="col-12 col-sm-6 col-md-3">
+            <label for="search-radius" class="form-label fw-semibold">Distance</label>
+            <select
+              id="search-radius"
+              v-model.number="radiusKm"
+              class="form-select"
+              :disabled="!origin"
+              aria-describedby="search-radius-help"
+            >
+              <option :value="0">Any distance</option>
+              <option v-for="km in RADIUS_OPTIONS" :key="km" :value="km">Within {{ km }} km</option>
+            </select>
+          </div>
+        </div>
+        <span id="search-radius-help" class="visually-hidden">
+          Choose a starting point first. Distances are straight-line distances.
+        </span>
+
+        <div v-if="locationError" class="alert alert-warning mt-3 mb-0" role="alert">
+          <i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ locationError }}
+        </div>
+        <p v-if="origin" class="small mt-3 mb-0">
+          <i class="bi bi-geo-alt-fill text-primary me-1" aria-hidden="true"></i>
+          Starting point: <strong>{{ origin.label }}</strong>
+          <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" @click="clearOrigin">
+            Clear<span class="visually-hidden"> starting point</span>
+          </button>
+        </p>
+      </div>
+    </div>
+
     <div class="row g-4">
       <div class="col-12 col-lg-8">
         <div v-if="mapError" class="alert alert-warning" role="alert">
@@ -205,26 +368,28 @@ onBeforeUnmount(() => {
       <div class="col-12 col-lg-4">
         <section class="event-list-panel" aria-labelledby="event-list-heading">
           <h2 id="event-list-heading" class="h5 mb-2">Events</h2>
-          <p class="small text-muted mb-2" aria-live="polite">
-            <template v-if="store.loading">Loading events...</template>
-            <template v-else>{{ mapEvents.length }} events, soonest first.</template>
-          </p>
+          <p class="small text-muted mb-2" aria-live="polite">{{ listSummary }}</p>
 
-          <ul class="list-group event-list">
+          <ul v-if="listEvents.length" class="list-group event-list">
             <li
-              v-for="event in mapEvents"
+              v-for="{ event, distanceKm } in listEvents"
               :key="event.id"
               class="list-group-item"
               :class="{ 'event-list-item--selected': selectedId === event.id }"
             >
-              <button
-                type="button"
-                class="btn btn-link p-0 text-start fw-semibold text-decoration-none event-list-name"
-                :aria-current="selectedId === event.id ? 'true' : undefined"
-                @click="showOnMap(event)"
-              >
-                {{ event.name }}<span class="visually-hidden">, show on map</span>
-              </button>
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <button
+                  type="button"
+                  class="btn btn-link p-0 text-start fw-semibold text-decoration-none event-list-name"
+                  :aria-current="selectedId === event.id ? 'true' : undefined"
+                  @click="showOnMap(event)"
+                >
+                  {{ event.name }}<span class="visually-hidden">, show on map</span>
+                </button>
+                <span v-if="distanceKm !== null" class="badge text-bg-light border flex-shrink-0">
+                  {{ formatDistance(distanceKm) }}<span class="visually-hidden"> away</span>
+                </span>
+              </div>
               <div class="small text-muted">
                 {{ formatDate(event.date) }} · {{ event.location }}, {{ event.suburb }}
               </div>
