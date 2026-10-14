@@ -87,7 +87,7 @@ async function handleLogout() {
               {{ authStore.userName }}
               <span
                 class="badge ms-1"
-                :class="authStore.isAdmin ? 'bg-danger' : 'bg-info'"
+                :class="authStore.isAdmin ? 'bg-danger' : 'text-bg-info'"
               >
                 {{ authStore.userRole }}
               </span>
