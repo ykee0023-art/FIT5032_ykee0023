@@ -42,8 +42,10 @@ body {
   color: var(--gr-green) !important;
 }
 
+/* The old light-green middle (#81c784) left the white hero text at about 2:1; every stop of this
+   gradient keeps white text above 4.5:1 */
 .hero-section {
-  background: linear-gradient(135deg, var(--gr-green-dark) 0%, #81c784 50%, var(--gr-green-dark) 100%);
+  background: linear-gradient(135deg, var(--gr-green-dark) 0%, var(--gr-green) 50%, var(--gr-green-dark) 100%);
   color: #fff;
   padding: 4rem 0;
 }

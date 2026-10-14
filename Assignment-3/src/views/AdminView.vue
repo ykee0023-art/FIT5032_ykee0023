@@ -257,11 +257,17 @@ function formatDateTime(date) {
       <div class="row g-3 mb-3">
         <div v-for="card in userCards" :key="card.label" class="col-6 col-md-3">
           <div class="card text-center shadow-sm h-100">
-            <div class="card-body">
-              <i class="bi display-6" :class="[card.icon, card.tone]" aria-hidden="true"></i>
-              <p class="h3 mt-2 mb-0">{{ card.value ?? '—' }}</p>
-              <p class="text-muted mb-0">{{ card.label }}</p>
-            </div>
+            <dl class="card-body mb-0 d-flex flex-column">
+              <dt class="order-2 fw-normal text-muted">{{ card.label }}</dt>
+              <dd class="order-1 mb-0">
+                <i
+                  class="bi display-6 d-block"
+                  :class="[card.icon, card.tone]"
+                  aria-hidden="true"
+                ></i>
+                <span class="h3 d-block mt-2 mb-0">{{ card.value ?? '—' }}</span>
+              </dd>
+            </dl>
           </div>
         </div>
       </div>
@@ -296,13 +302,13 @@ function formatDateTime(date) {
       <div class="row g-3">
         <div v-for="card in activityCards" :key="card.label" class="col-12 col-sm-6 col-lg-3">
           <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-2 text-muted mb-1">
+            <dl class="card-body mb-0">
+              <dt class="d-flex align-items-center gap-2 fw-normal text-muted mb-1">
                 <i class="bi" :class="card.icon" aria-hidden="true"></i>{{ card.label }}
-              </div>
-              <p class="h3 mb-1">{{ card.value ?? '—' }}</p>
-              <p class="small text-muted mb-0">{{ card.detail }}</p>
-            </div>
+              </dt>
+              <dd class="h3 mb-1">{{ card.value ?? '—' }}</dd>
+              <dd class="small text-muted mb-0">{{ card.detail }}</dd>
+            </dl>
           </div>
         </div>
       </div>

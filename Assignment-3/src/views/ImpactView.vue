@@ -247,34 +247,34 @@ function resetFilters() {
     <section class="row g-3 mb-4" aria-label="Summary" aria-live="polite">
       <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100 text-center">
-          <div class="card-body">
-            <p class="h3 mb-0">{{ totals.events }}</p>
-            <p class="text-muted mb-0">Events</p>
-          </div>
+          <dl class="card-body mb-0 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Events</dt>
+            <dd class="order-1 h3 mb-0">{{ totals.events }}</dd>
+          </dl>
         </div>
       </div>
       <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100 text-center">
-          <div class="card-body">
-            <p class="h3 mb-0">{{ totals.filled }}</p>
-            <p class="text-muted mb-0">Volunteer places filled</p>
-          </div>
+          <dl class="card-body mb-0 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Volunteer places filled</dt>
+            <dd class="order-1 h3 mb-0">{{ totals.filled }}</dd>
+          </dl>
         </div>
       </div>
       <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100 text-center">
-          <div class="card-body">
-            <p class="h3 mb-0">{{ totals.percent }}%</p>
-            <p class="text-muted mb-0">Of {{ totals.capacity }} places taken</p>
-          </div>
+          <dl class="card-body mb-0 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Of {{ totals.capacity }} places taken</dt>
+            <dd class="order-1 h3 mb-0">{{ totals.percent }}%</dd>
+          </dl>
         </div>
       </div>
       <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100 text-center">
-          <div class="card-body">
-            <p class="h3 mb-0">{{ totals.suburbs }}</p>
-            <p class="text-muted mb-0">Suburbs reached</p>
-          </div>
+          <dl class="card-body mb-0 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Suburbs reached</dt>
+            <dd class="order-1 h3 mb-0">{{ totals.suburbs }}</dd>
+          </dl>
         </div>
       </div>
     </section>

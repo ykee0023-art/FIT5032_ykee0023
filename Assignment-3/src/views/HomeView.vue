@@ -18,7 +18,7 @@ onMounted(() => {
     <section class="hero-section text-center">
       <div class="container">
         <h1 class="display-4 fw-bold mb-3">Growing a Greener Melbourne</h1>
-        <p class="lead mb-4 mx-auto fw-semibold" style="max-width: 600px">
+        <p class="lead mb-4 mx-auto" style="max-width: 600px">
           GreenRoots Melbourne is a not-for-profit dedicated to urban greening, community tree
           planting, and biodiversity conservation across Greater Melbourne.
         </p>
@@ -35,36 +35,42 @@ onMounted(() => {
 
     <section class="py-5">
       <div class="container">
-        <div class="row g-4 text-center">
-          <div class="col-6 col-md-3">
-            <div class="p-3">
-              <i class="bi bi-tree fs-1 text-greenroots" aria-hidden="true"></i>
-              <p class="h3 fw-bold mt-2 mb-1">{{ store.totalEvents }}</p>
-              <p class="text-muted mb-0">Active Events</p>
-            </div>
+        <!-- Label and value pairs, so a description list rather than headings or paragraphs;
+             order-* keeps the number above its label on screen -->
+        <dl class="row g-4 text-center mb-0">
+          <div class="col-6 col-md-3 p-3 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Active Events</dt>
+            <dd class="order-1 mb-1">
+              <i class="bi bi-tree fs-1 text-greenroots d-block" aria-hidden="true"></i>
+              <span class="h3 fw-bold d-block mt-2 mb-0">{{ store.totalEvents }}</span>
+            </dd>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="p-3">
-              <i class="bi bi-people fs-1 text-greenroots" aria-hidden="true"></i>
-              <p class="h3 fw-bold mt-2 mb-1">{{ store.totalSpots }}</p>
-              <p class="text-muted mb-0">Spots Available</p>
-            </div>
+          <div class="col-6 col-md-3 p-3 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Spots Available</dt>
+            <dd class="order-1 mb-1">
+              <i class="bi bi-people fs-1 text-greenroots d-block" aria-hidden="true"></i>
+              <span class="h3 fw-bold d-block mt-2 mb-0">{{ store.totalSpots }}</span>
+            </dd>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="p-3">
-              <i class="bi bi-star fs-1 text-greenroots" aria-hidden="true"></i>
-              <p class="h3 fw-bold mt-2 mb-1">{{ ratingStore.getOverallAverage() || store.averageRating }}</p>
-              <p class="text-muted mb-0">Avg Rating</p>
-            </div>
+          <div class="col-6 col-md-3 p-3 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">Avg Rating</dt>
+            <dd class="order-1 mb-1">
+              <i class="bi bi-star fs-1 text-greenroots d-block" aria-hidden="true"></i>
+              <span class="h3 fw-bold d-block mt-2 mb-0">{{
+                ratingStore.getOverallAverage() || store.averageRating
+              }}</span>
+            </dd>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="p-3">
-              <i class="bi bi-geo-alt fs-1 text-greenroots" aria-hidden="true"></i>
-              <p class="h3 fw-bold mt-2 mb-1">Melbourne</p>
-              <p class="text-muted mb-0">Victoria, AU</p>
-            </div>
+          <div class="col-6 col-md-3 p-3 d-flex flex-column">
+            <dt class="order-2 fw-normal text-muted">
+              <span class="visually-hidden">Based in </span>Victoria, AU
+            </dt>
+            <dd class="order-1 mb-1">
+              <i class="bi bi-geo-alt fs-1 text-greenroots d-block" aria-hidden="true"></i>
+              <span class="h3 fw-bold d-block mt-2 mb-0">Melbourne</span>
+            </dd>
           </div>
-        </div>
+        </dl>
       </div>
     </section>
 
@@ -95,24 +101,26 @@ onMounted(() => {
             <h2>Why Urban Greening Matters</h2>
             <p>
               Melbourne's urban canopy faces increasing pressure from development, climate change,
-              and population growth. GreenRoots works with communities to plant native trees, restore
-              biodiversity corridors, and create green spaces that benefit both people and wildlife.
+              and population growth. GreenRoots works with communities to plant native trees,
+              restore biodiversity corridors, and create green spaces that benefit both people and
+              wildlife.
             </p>
             <ul class="list-unstyled">
               <li class="mb-2">
-                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Reduce urban heat island
-                effect
+                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Reduce
+                urban heat island effect
               </li>
               <li class="mb-2">
-                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Support native wildlife
-                habitat
+                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Support
+                native wildlife habitat
               </li>
               <li class="mb-2">
-                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Improve air quality and
-                wellbeing
+                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Improve
+                air quality and wellbeing
               </li>
               <li class="mb-2">
-                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Build stronger communities
+                <i class="bi bi-check-circle text-greenroots me-2" aria-hidden="true"></i>Build
+                stronger communities
               </li>
             </ul>
           </div>
