@@ -24,6 +24,9 @@ const SENDER_NAME = 'GreenRoots Melbourne'
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MAX_ATTACHMENT_BYTES = 2 * 1024 * 1024
 const HOURLY_LIMIT = 5
+const BULK_LIMIT = 50
+// Brevo is called a few at a time so a large batch does not trip its rate limit
+const BULK_CONCURRENCY = 5
 
 // Allowed attachments, checked by extension and by the file's first bytes (not just the name)
 const ATTACHMENT_SIGNATURES = {
@@ -76,6 +79,22 @@ function validateAttachment(attachment) {
   return { name, content: attachment.content }
 }
 
+// Shared by the single and bulk email functions
+function validateContent(subject, message) {
+  // A line break in the subject could be used to inject extra email headers
+  if (
+    typeof subject !== 'string' ||
+    !subject.trim() ||
+    subject.length > 150 ||
+    /[\r\n]/.test(subject)
+  ) {
+    throw invalid('The subject must be 1 to 150 characters on a single line.')
+  }
+  if (typeof message !== 'string' || message.trim().length < 10 || message.length > 5000) {
+    throw invalid('The message must be between 10 and 5000 characters.')
+  }
+}
+
 async function sendViaBrevo({ to, subject, text, replyTo, attachments = [] }) {
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -116,18 +135,7 @@ export const sendEmail = onCall({ secrets: [BREVO_API_KEY] }, async (request) =>
   if (!EMAIL_PATTERN.test(recipient) || recipient.length > 254) {
     throw invalid('Please enter a valid recipient email address.')
   }
-  // A line break in the subject could be used to inject extra email headers
-  if (
-    typeof subject !== 'string' ||
-    !subject.trim() ||
-    subject.length > 150 ||
-    /[\r\n]/.test(subject)
-  ) {
-    throw invalid('The subject must be 1 to 150 characters on a single line.')
-  }
-  if (typeof message !== 'string' || message.trim().length < 10 || message.length > 5000) {
-    throw invalid('The message must be between 10 and 5000 characters.')
-  }
+  validateContent(subject, message)
   const attachments = attachment ? [validateAttachment(attachment)] : []
 
   const uid = request.auth.uid
@@ -180,6 +188,109 @@ export const sendEmail = onCall({ secrets: [BREVO_API_KEY] }, async (request) =>
     )
   }
 })
+
+// F.1 Bulk Email: an admin emails the volunteers selected in the registrations table.
+// The client sends registration IDs, not addresses, so the function only ever emails people
+// who registered on this site, and each person gets their own copy (no shared To/CC list).
+export const sendBulkEmail = onCall(
+  { secrets: [BREVO_API_KEY], timeoutSeconds: 120 },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Please sign in to send emails.')
+    }
+    const uid = request.auth.uid
+    const profile = await db.doc(`users/${uid}`).get()
+    if (profile.get('role') !== 'admin') {
+      throw new HttpsError('permission-denied', 'Only admins can send bulk emails.')
+    }
+
+    const { registrationIds, subject, message, attachment } = request.data || {}
+    if (!Array.isArray(registrationIds) || registrationIds.length === 0) {
+      throw invalid('Select at least one volunteer to email.')
+    }
+    const ids = [...new Set(registrationIds)]
+    if (ids.length > BULK_LIMIT) {
+      throw invalid(`You can email up to ${BULK_LIMIT} volunteers at a time.`)
+    }
+    if (!ids.every((id) => typeof id === 'string' && /^[\w-]{1,100}$/.test(id))) {
+      throw invalid('The selection could not be read. Please select the volunteers again.')
+    }
+    validateContent(subject, message)
+    const attachments = attachment ? [validateAttachment(attachment)] : []
+
+    const snapshots = await db.getAll(...ids.map((id) => db.doc(`registrations/${id}`)))
+    const results = []
+    const recipients = []
+    const seen = new Set()
+    for (const snapshot of snapshots) {
+      const data = snapshot.data() ?? {}
+      const email = String(data.email ?? '').trim().toLowerCase()
+      const entry = { id: snapshot.id, name: data.name ?? '', email }
+      let reason = ''
+      if (!snapshot.exists) reason = 'Registration not found'
+      // Seeded Mockaroo rows use made-up addresses on real domains, so they are never emailed
+      else if (data.source !== 'website') reason = 'Sample data, not a real mailbox'
+      else if (!EMAIL_PATTERN.test(email)) reason = 'Invalid email address'
+      else if (seen.has(email)) reason = 'Same email as another selected volunteer'
+
+      if (reason) {
+        results.push({ ...entry, status: 'skipped', reason })
+      } else {
+        seen.add(email)
+        recipients.push({ ...entry, eventName: data.eventName || 'a GreenRoots event' })
+      }
+    }
+
+    const batchId = db.collection('emailLogs').doc().id
+    const cleanSubject = subject.trim()
+    const replyTo = request.auth.token.email ? { email: request.auth.token.email } : null
+
+    async function sendOne({ eventName, ...recipient }) {
+      const firstName = recipient.name.trim().split(/\s+/)[0] || 'there'
+      const body = message.trim().replaceAll('{name}', firstName).replaceAll('{event}', eventName)
+      // Says why the person is getting the email and how to opt out (Spam Act 2003)
+      const text =
+        `${body}\n\n--\nYou are receiving this because you registered for ${eventName} ` +
+        'with GreenRoots Melbourne. Reply to this email if you would rather not hear from us.'
+      const log = {
+        to: recipient.email,
+        subject: cleanSubject,
+        type: 'bulk',
+        sentBy: uid,
+        batchId,
+        attachmentName: attachments[0]?.name ?? null,
+      }
+      try {
+        await sendViaBrevo({ to: recipient.email, subject: cleanSubject, text, replyTo, attachments })
+        await logEmail({ ...log, status: 'sent' })
+        return { ...recipient, status: 'sent', reason: '' }
+      } catch (error) {
+        logger.error('Bulk email failed', {
+          batchId,
+          registrationId: recipient.id,
+          error: error.message,
+        })
+        await logEmail({ ...log, status: 'failed' })
+        return { ...recipient, status: 'failed', reason: 'The email service did not accept it' }
+      }
+    }
+
+    for (let i = 0; i < recipients.length; i += BULK_CONCURRENCY) {
+      const batch = recipients.slice(i, i + BULK_CONCURRENCY)
+      results.push(...(await Promise.all(batch.map(sendOne))))
+    }
+
+    const total = (status) => results.filter((result) => result.status === status).length
+    logger.info('sendBulkEmail finished', { uid, batchId, sent: total('sent') })
+    return {
+      batchId,
+      sent: total('sent'),
+      skipped: total('skipped'),
+      failed: total('failed'),
+      results,
+    }
+  },
+)
 
 // E.1: when a volunteer registers on the website, book a spot and email a confirmation
 export const onRegistrationCreated = onDocumentCreated(

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -8,6 +8,7 @@ import Select from 'primevue/select'
 import { FilterMatchMode } from '@primevue/core/api'
 import { db } from '@/firebase/init'
 import ExportButtons from '@/components/tables/ExportButtons.vue'
+import BulkEmailPanel from '@/components/email/BulkEmailPanel.vue'
 
 const STATUSES = ['confirmed', 'waitlist', 'cancelled']
 const AGE_GROUPS = ['Under 18', '18-24', '25-34', '35-44', '45-54', '55-64', '65+']
@@ -21,6 +22,14 @@ const registrations = ref([])
 const selected = ref([])
 const loading = ref(true)
 const loadError = ref('')
+const showBulkEmail = ref(false)
+const bulkEmailButton = ref(null)
+
+async function closeBulkEmail() {
+  showBulkEmail.value = false
+  await nextTick()
+  bulkEmailButton.value?.focus()
+}
 
 function createFilters() {
   return {
@@ -116,6 +125,8 @@ onMounted(async () => {
 
     <div v-if="loadError" class="alert alert-danger" role="alert">{{ loadError }}</div>
 
+    <BulkEmailPanel v-if="showBulkEmail" :recipients="selected" @close="closeBulkEmail" />
+
     <DataTable
       ref="tableRef"
       v-model:filters="filters"
@@ -166,6 +177,15 @@ onMounted(async () => {
             <button type="button" class="btn btn-sm btn-outline-secondary" @click="clearFilters">
               Clear filters
             </button>
+            <button
+              ref="bulkEmailButton"
+              type="button"
+              class="btn btn-sm btn-greenroots"
+              :disabled="!selected.length"
+              @click="showBulkEmail = true"
+            >
+              <i class="bi bi-envelope me-1" aria-hidden="true"></i>Email selected
+            </button>
             <ExportButtons
               :rows="visibleRows"
               :columns="exportColumns"
@@ -191,6 +211,15 @@ onMounted(async () => {
         :show-filter-menu="false"
         style="min-width: 12rem"
       >
+        <template #body="{ data }">
+          {{ data.name }}
+          <span
+            v-if="data.source !== 'website'"
+            class="badge text-bg-light border fw-normal ms-1"
+            title="Mockaroo sample data"
+            >sample</span
+          >
+        </template>
         <template #filter="{ filterModel, filterCallback }">
           <InputText
             v-model="filterModel.value"
