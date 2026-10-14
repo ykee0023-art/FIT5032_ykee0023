@@ -51,3 +51,25 @@ export async function retrievePlace(id, sessionToken) {
     lat,
   }
 }
+
+// Returns null when the two places are not connected for this travel mode
+export async function fetchRoute(profile, from, to, signal) {
+  const coordinates = `${from.lng},${from.lat};${to.lng},${to.lat}`
+  const params = new URLSearchParams({
+    access_token: MAPBOX_TOKEN,
+    geometries: 'geojson',
+    overview: 'full',
+  })
+  const response = await fetch(
+    `${API_BASE}/directions/v5/mapbox/${profile}/${coordinates}?${params}`,
+    { signal },
+  )
+  const data = await response.json().catch(() => ({}))
+  if (data.code === 'NoRoute' || data.code === 'NoSegment') return null
+  if (!response.ok || data.code !== 'Ok' || !data.routes?.length) {
+    throw new Error(data.message || `Directions request failed with status ${response.status}`)
+  }
+
+  const [best] = data.routes
+  return { distance: best.distance, duration: best.duration, geometry: best.geometry }
+}

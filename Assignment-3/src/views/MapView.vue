@@ -1,16 +1,19 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useEventStore } from '@/stores/eventStore'
 import { useGeolocation } from '@/composables/useGeolocation'
 import { circlePolygon, formatDistance, haversineKm } from '@/utils/geo'
+import { fetchRoute } from '@/utils/mapboxApi'
 import PlaceSearch from '@/components/map/PlaceSearch.vue'
+import TripPanel from '@/components/map/TripPanel.vue'
 
 const MELBOURNE = [144.9631, -37.8136]
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN
 const RADIUS_OPTIONS = [5, 10, 20, 50]
+const TRAVEL_MODES = ['walking', 'cycling', 'driving']
 const EMPTY_GEOJSON = { type: 'FeatureCollection', features: [] }
 
 const store = useEventStore()
@@ -20,17 +23,22 @@ const { locating, error: locationError, locate } = useGeolocation()
 
 const mapContainer = ref(null)
 const placeSearch = ref(null)
+const tripPanel = ref(null)
 const mapReady = ref(false)
 const mapError = ref('')
 const selectedId = ref(null)
 // Starting point from place search or the browser location: { label, lat, lng }
 const origin = ref(null)
 const radiusKm = ref(0)
+// Destination and routes for every travel mode: { event, routes, loading, error }
+const trip = ref(null)
+const travelMode = ref('walking')
 
 // Mapbox objects are kept out of Vue's reactivity, which would wrap them in proxies
 let map = null
 let activePopup = null
 let originMarker = null
+let routeController = null
 const markersById = new Map()
 
 const mapEvents = computed(() =>
@@ -54,7 +62,8 @@ const listSummary = computed(() => {
   if (radiusKm.value && count === 0) {
     return `No events within ${radiusKm.value} km of ${origin.value.label}. Try a larger distance.`
   }
-  if (radiusKm.value) return `${events} within ${radiusKm.value} km of ${origin.value.label}, nearest first.`
+  if (radiusKm.value)
+    return `${events} within ${radiusKm.value} km of ${origin.value.label}, nearest first.`
   return `${events}, nearest to ${origin.value.label} first.`
 })
 
@@ -88,7 +97,11 @@ function buildPopup(event) {
     element('h2', 'h6 mb-1', event.name),
     element('p', 'small text-muted mb-1', `${formatDate(event.date)} · ${event.time}`),
     element('p', 'small mb-1', `${event.location}, ${event.suburb}`),
-    element('p', `small fw-semibold mb-2 ${event.spots > 0 ? 'text-success' : 'text-danger'}`, spotsLabel(event)),
+    element(
+      'p',
+      `small fw-semibold mb-2 ${event.spots > 0 ? 'text-success' : 'text-danger'}`,
+      spotsLabel(event),
+    ),
   )
 
   const register = element(
@@ -99,8 +112,12 @@ function buildPopup(event) {
   register.type = 'button'
   register.addEventListener('click', () => router.push(registerLocation(event)))
 
+  const directions = element('button', 'btn btn-sm btn-outline-greenroots', 'Directions')
+  directions.type = 'button'
+  directions.addEventListener('click', () => planTrip(event))
+
   const actions = element('div', 'd-flex flex-wrap gap-2')
-  actions.append(register)
+  actions.append(register, directions)
   root.append(actions)
   return root
 }
@@ -203,6 +220,95 @@ function clearOrigin() {
   fitToEvents()
 }
 
+function addRouteLayers() {
+  map.addSource('trip-route', { type: 'geojson', data: EMPTY_GEOJSON })
+  const layout = { 'line-join': 'round', 'line-cap': 'round' }
+  map.addLayer({
+    id: 'trip-route-casing',
+    type: 'line',
+    source: 'trip-route',
+    layout,
+    paint: { 'line-color': '#ffffff', 'line-width': 9 },
+  })
+  map.addLayer({
+    id: 'trip-route-line',
+    type: 'line',
+    source: 'trip-route',
+    layout,
+    paint: { 'line-color': '#1b5e20', 'line-width': 5 },
+  })
+}
+
+function drawRoute() {
+  if (!map || !mapReady.value) return
+  const selected = trip.value?.routes?.[travelMode.value]
+  map
+    .getSource('trip-route')
+    ?.setData(
+      selected ? { type: 'Feature', properties: {}, geometry: selected.geometry } : EMPTY_GEOJSON,
+    )
+  if (!selected) return
+
+  const bounds = new mapboxgl.LngLatBounds()
+  for (const point of selected.geometry.coordinates) bounds.extend(point)
+  map.fitBounds(bounds, { padding: 60, maxZoom: 15 })
+}
+
+// Fetches all three travel modes at once, so switching modes needs no further requests
+async function loadRoutes() {
+  routeController?.abort()
+  if (!trip.value) return
+  const { event } = trip.value
+  if (!origin.value) {
+    trip.value = { event, routes: null, loading: false, error: '' }
+    drawRoute()
+    return
+  }
+
+  const controller = new AbortController()
+  routeController = controller
+  trip.value = { event, routes: null, loading: true, error: '' }
+  const results = await Promise.allSettled(
+    TRAVEL_MODES.map((mode) => fetchRoute(mode, origin.value, event, controller.signal)),
+  )
+  if (controller.signal.aborted) return
+
+  if (results.every((result) => result.status === 'rejected')) {
+    trip.value = {
+      event,
+      routes: null,
+      loading: false,
+      error: 'Directions are not available right now. Please check your connection and try again.',
+    }
+  } else {
+    const routes = Object.fromEntries(
+      TRAVEL_MODES.map((mode, i) => [mode, results[i].value ?? null]),
+    )
+    trip.value = { event, routes, loading: false, error: '' }
+  }
+  drawRoute()
+}
+
+async function planTrip(event) {
+  selectedId.value = event.id
+  trip.value = { event, routes: null, loading: false, error: '' }
+  activePopup?.remove()
+  await nextTick()
+  tripPanel.value?.focus()
+  loadRoutes()
+}
+
+function closeTrip() {
+  routeController?.abort()
+  trip.value = null
+  drawRoute()
+}
+
+function chooseStart() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  placeSearch.value?.focus()
+}
+
 function fitToEvents() {
   if (!map || mapEvents.value.length === 0) return
   const bounds = new mapboxgl.LngLatBounds()
@@ -249,6 +355,7 @@ function initMap() {
   map.addControl(new mapboxgl.ScaleControl({ unit: 'metric' }), 'bottom-left')
   map.on('load', () => {
     addSearchLayers()
+    addRouteLayers()
     mapReady.value = true
   })
   map.on('error', () => {
@@ -270,6 +377,8 @@ watch([mapReady, mapEvents], ([ready, events]) => {
 
 watch([origin, radiusKm], showOrigin)
 watch(listEvents, updateMarkerVisibility)
+watch(origin, loadRoutes)
+watch(travelMode, drawRoute)
 
 onMounted(() => {
   store.loadEvents()
@@ -277,6 +386,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  routeController?.abort()
   map?.remove()
   map = null
   markersById.clear()
@@ -287,8 +397,8 @@ onBeforeUnmount(() => {
   <div class="container py-5">
     <h1 class="mb-2">Find a Planting Site Near You</h1>
     <p class="text-muted mb-4">
-      Every GreenRoots event is shown on the map and in the list. Select an event to see its
-      details and register.
+      Every GreenRoots event is shown on the map and in the list. Select an event to see its details
+      and register.
     </p>
 
     <div v-if="store.loadError" class="alert alert-danger" role="alert">
@@ -341,7 +451,11 @@ onBeforeUnmount(() => {
         <p v-if="origin" class="small mt-3 mb-0">
           <i class="bi bi-geo-alt-fill text-primary me-1" aria-hidden="true"></i>
           Starting point: <strong>{{ origin.label }}</strong>
-          <button type="button" class="btn btn-link btn-sm p-0 ms-2 align-baseline" @click="clearOrigin">
+          <button
+            type="button"
+            class="btn btn-link btn-sm p-0 ms-2 align-baseline"
+            @click="clearOrigin"
+          >
             Clear<span class="visually-hidden"> starting point</span>
           </button>
         </p>
@@ -366,6 +480,16 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="col-12 col-lg-4">
+        <TripPanel
+          v-if="trip"
+          ref="tripPanel"
+          v-model:profile="travelMode"
+          :trip="trip"
+          :origin="origin"
+          @close="closeTrip"
+          @choose-start="chooseStart"
+        />
+
         <section class="event-list-panel" aria-labelledby="event-list-heading">
           <h2 id="event-list-heading" class="h5 mb-2">Events</h2>
           <p class="small text-muted mb-2" aria-live="polite">{{ listSummary }}</p>
@@ -408,6 +532,14 @@ onBeforeUnmount(() => {
                 >
                   {{ event.spots > 0 ? 'Register' : 'Join waitlist' }}
                 </RouterLink>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-greenroots"
+                  :aria-label="`Directions to ${event.name}`"
+                  @click="planTrip(event)"
+                >
+                  <i class="bi bi-signpost-split me-1" aria-hidden="true"></i>Directions
+                </button>
               </div>
             </li>
           </ul>

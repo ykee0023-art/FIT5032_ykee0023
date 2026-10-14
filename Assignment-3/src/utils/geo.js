@@ -18,6 +18,14 @@ export function formatDistance(km) {
   return `${km < 10 ? km.toFixed(1) : Math.round(km)} km`
 }
 
+export function formatDuration(seconds) {
+  const minutes = Math.max(1, Math.round(seconds / 60))
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return rest ? `${hours} h ${rest} min` : `${hours} h`
+}
+
 // GeoJSON polygon approximating a circle of radiusKm around center, used to draw the search radius
 export function circlePolygon(center, radiusKm, steps = 64) {
   const lat1 = toRadians(center.lat)

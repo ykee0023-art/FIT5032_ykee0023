@@ -171,7 +171,9 @@ onBeforeUnmount(reset)
     </ul>
 
     <p v-if="error" class="small text-danger mt-1 mb-0" role="alert">{{ error }}</p>
-    <p v-else-if="message && !suggestions.length" class="small text-muted mt-1 mb-0">{{ message }}</p>
+    <p v-else-if="message && !suggestions.length" class="small text-muted mt-1 mb-0">
+      {{ message }}
+    </p>
     <span class="visually-hidden" aria-live="polite">{{ message }}</span>
   </div>
 </template>
