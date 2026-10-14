@@ -121,8 +121,10 @@ async function handleSend() {
                   placeholder="friend@example.com"
                   maxlength="254"
                   @blur="validateField('to')"
+                  :aria-invalid="errors.to ? 'true' : undefined"
+                  :aria-describedby="errors.to ? 'email-to-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ errors.to }}</div>
+                <div id="email-to-error" class="invalid-feedback">{{ errors.to }}</div>
               </div>
 
               <div class="mb-3">
@@ -138,8 +140,10 @@ async function handleSend() {
                   placeholder="Join me at a GreenRoots planting day"
                   maxlength="150"
                   @blur="validateField('subject')"
+                  :aria-invalid="errors.subject ? 'true' : undefined"
+                  :aria-describedby="errors.subject ? 'email-subject-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ errors.subject }}</div>
+                <div id="email-subject-error" class="invalid-feedback">{{ errors.subject }}</div>
               </div>
 
               <div class="mb-3">
@@ -153,10 +157,15 @@ async function handleSend() {
                   :class="{ 'is-invalid': errors.message }"
                   rows="6"
                   maxlength="5000"
-                  aria-describedby="email-message-count"
                   @blur="validateField('message')"
+                  :aria-invalid="errors.message ? 'true' : undefined"
+                  :aria-describedby="
+                    errors.message
+                      ? 'email-message-error email-message-count'
+                      : 'email-message-count'
+                  "
                 ></textarea>
-                <div class="invalid-feedback">{{ errors.message }}</div>
+                <div id="email-message-error" class="invalid-feedback">{{ errors.message }}</div>
                 <div id="email-message-count" class="form-text">
                   {{ form.message.length }} / 5000 characters (at least 10)
                 </div>
@@ -171,10 +180,15 @@ async function handleSend() {
                   class="form-control"
                   :class="{ 'is-invalid': fileError }"
                   :accept="ATTACHMENT_ACCEPT"
-                  aria-describedby="email-attachment-help"
                   @change="handleFileChange"
+                  :aria-invalid="fileError ? 'true' : undefined"
+                  :aria-describedby="
+                    fileError
+                      ? 'email-attachment-error email-attachment-help'
+                      : 'email-attachment-help'
+                  "
                 />
-                <div class="invalid-feedback">{{ fileError }}</div>
+                <div id="email-attachment-error" class="invalid-feedback">{{ fileError }}</div>
                 <div id="email-attachment-help" class="form-text">
                   PDF, PNG, JPG or ICS, up to 2 MB.
                 </div>

@@ -210,9 +210,10 @@ onMounted(() => heading.value?.focus())
               maxlength="150"
               placeholder="Your GreenRoots event this weekend"
               @blur="validateField('subject')"
-              @input="errors.subject && validateField('subject')"
+              :aria-invalid="errors.subject ? 'true' : undefined"
+              :aria-describedby="errors.subject ? 'bulk-subject-error' : undefined"
             />
-            <div class="invalid-feedback">{{ errors.subject }}</div>
+            <div id="bulk-subject-error" class="invalid-feedback">{{ errors.subject }}</div>
           </div>
 
           <div class="mb-3">
@@ -226,12 +227,14 @@ onMounted(() => heading.value?.focus())
               :class="{ 'is-invalid': errors.message }"
               rows="6"
               maxlength="5000"
-              aria-describedby="bulk-message-help"
               placeholder="Hi {name}, thanks for signing up for {event}..."
               @blur="validateField('message')"
-              @input="errors.message && validateField('message')"
+              :aria-invalid="errors.message ? 'true' : undefined"
+              :aria-describedby="
+                errors.message ? 'bulk-message-error bulk-message-help' : 'bulk-message-help'
+              "
             ></textarea>
-            <div class="invalid-feedback">{{ errors.message }}</div>
+            <div id="bulk-message-error" class="invalid-feedback">{{ errors.message }}</div>
             <div id="bulk-message-help" class="form-text">
               Write <code>{name}</code> for each volunteer's first name and <code>{event}</code> for
               the event they registered for. {{ form.message.length }} / 5000 characters.
@@ -247,10 +250,13 @@ onMounted(() => heading.value?.focus())
               class="form-control"
               :class="{ 'is-invalid': fileError }"
               :accept="ATTACHMENT_ACCEPT"
-              aria-describedby="bulk-attachment-help"
               @change="handleFileChange"
+              :aria-invalid="fileError ? 'true' : undefined"
+              :aria-describedby="
+                fileError ? 'bulk-attachment-error bulk-attachment-help' : 'bulk-attachment-help'
+              "
             />
-            <div class="invalid-feedback">{{ fileError }}</div>
+            <div id="bulk-attachment-error" class="invalid-feedback">{{ fileError }}</div>
             <div id="bulk-attachment-help" class="form-text">PDF, PNG, JPG or ICS, up to 2 MB.</div>
             <div v-if="file" class="d-flex align-items-center gap-2 mt-2">
               <span class="badge text-bg-light border">

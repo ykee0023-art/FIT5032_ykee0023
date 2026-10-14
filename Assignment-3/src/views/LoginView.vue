@@ -226,8 +226,12 @@ function setMode(newMode) {
                   :class="{ 'is-invalid': loginErrors.loginEmail }"
                   placeholder="your.email@example.com"
                   @blur="loginValidateField('loginEmail')"
+                  :aria-invalid="loginErrors.loginEmail ? 'true' : undefined"
+                  :aria-describedby="loginErrors.loginEmail ? 'login-email-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ loginErrors.loginEmail }}</div>
+                <div id="login-email-error" class="invalid-feedback">
+                  {{ loginErrors.loginEmail }}
+                </div>
               </div>
 
               <div class="mb-3">
@@ -253,6 +257,10 @@ function setMode(newMode) {
                     :class="{ 'is-invalid': loginErrors.loginPassword }"
                     placeholder="Enter your password"
                     @blur="loginValidateField('loginPassword')"
+                    :aria-invalid="loginErrors.loginPassword ? 'true' : undefined"
+                    :aria-describedby="
+                      loginErrors.loginPassword ? 'login-password-error' : undefined
+                    "
                   />
                   <button
                     type="button"
@@ -262,7 +270,9 @@ function setMode(newMode) {
                   >
                     <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                   </button>
-                  <div class="invalid-feedback">{{ loginErrors.loginPassword }}</div>
+                  <div id="login-password-error" class="invalid-feedback">
+                    {{ loginErrors.loginPassword }}
+                  </div>
                 </div>
               </div>
 
@@ -304,8 +314,12 @@ function setMode(newMode) {
                   :class="{ 'is-invalid': resetErrors.resetEmail }"
                   placeholder="your.email@example.com"
                   @blur="resetValidateField('resetEmail')"
+                  :aria-invalid="resetErrors.resetEmail ? 'true' : undefined"
+                  :aria-describedby="resetErrors.resetEmail ? 'reset-email-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ resetErrors.resetEmail }}</div>
+                <div id="reset-email-error" class="invalid-feedback">
+                  {{ resetErrors.resetEmail }}
+                </div>
               </div>
 
               <button type="submit" class="btn btn-greenroots w-100" :disabled="!!loading">
@@ -339,8 +353,10 @@ function setMode(newMode) {
                   :class="{ 'is-invalid': regErrors.regName }"
                   placeholder="Your full name"
                   @blur="regValidateField('regName')"
+                  :aria-invalid="regErrors.regName ? 'true' : undefined"
+                  :aria-describedby="regErrors.regName ? 'reg-name-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ regErrors.regName }}</div>
+                <div id="reg-name-error" class="invalid-feedback">{{ regErrors.regName }}</div>
               </div>
 
               <div class="mb-3">
@@ -356,8 +372,10 @@ function setMode(newMode) {
                   :class="{ 'is-invalid': regErrors.regEmail }"
                   placeholder="your.email@example.com"
                   @blur="regValidateField('regEmail')"
+                  :aria-invalid="regErrors.regEmail ? 'true' : undefined"
+                  :aria-describedby="regErrors.regEmail ? 'reg-email-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ regErrors.regEmail }}</div>
+                <div id="reg-email-error" class="invalid-feedback">{{ regErrors.regEmail }}</div>
               </div>
 
               <div class="mb-3">
@@ -373,8 +391,12 @@ function setMode(newMode) {
                   :class="{ 'is-invalid': regErrors.regPassword }"
                   placeholder="Create a password"
                   @blur="regValidateField('regPassword')"
+                  :aria-invalid="regErrors.regPassword ? 'true' : undefined"
+                  :aria-describedby="regErrors.regPassword ? 'reg-password-error' : undefined"
                 />
-                <div class="invalid-feedback">{{ regErrors.regPassword }}</div>
+                <div id="reg-password-error" class="invalid-feedback">
+                  {{ regErrors.regPassword }}
+                </div>
                 <div class="form-text">At least 8 characters, including a letter and a number</div>
               </div>
 
@@ -393,8 +415,12 @@ function setMode(newMode) {
                   }"
                   placeholder="Confirm your password"
                   @blur="regValidateField('regConfirm')"
+                  :aria-invalid="regErrors.regConfirm || confirmPasswordError ? 'true' : undefined"
+                  :aria-describedby="
+                    regErrors.regConfirm || confirmPasswordError ? 'reg-confirm-error' : undefined
+                  "
                 />
-                <div class="invalid-feedback">
+                <div id="reg-confirm-error" class="invalid-feedback">
                   {{ regErrors.regConfirm || confirmPasswordError }}
                 </div>
               </div>

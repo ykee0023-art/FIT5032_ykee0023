@@ -1,4 +1,4 @@
-import { reactive, computed } from 'vue'
+import { reactive, computed, nextTick, watch } from 'vue'
 
 export function useFormValidation(fields, rules) {
   const form = reactive(Object.fromEntries(fields.map((f) => [f, ''])))
@@ -64,9 +64,23 @@ export function useFormValidation(fields, rules) {
     errors[field] = validators[type](form[field], label, min, max)
   }
 
+  // Once a field shows an error, re-check it as the user types so the message clears straight
+  // away. Otherwise it clears on blur, and that layout shift can swallow a click on Submit.
+  watch(
+    () => fields.map((f) => form[f]),
+    (now, before) => {
+      fields.forEach((f, i) => {
+        if (errors[f] && now[i] !== before[i]) validateField(f)
+      })
+    },
+  )
+
   function validateAll() {
     fields.forEach(validateField)
-    return fields.every((f) => !errors[f])
+    const valid = fields.every((f) => !errors[f])
+    // Move to the first invalid field so screen readers announce its error (WCAG 3.3.1)
+    if (!valid) nextTick(() => document.querySelector('[aria-invalid="true"]')?.focus())
+    return valid
   }
 
   const isFormValid = computed(() => fields.every((f) => form[f] && !errors[f]))

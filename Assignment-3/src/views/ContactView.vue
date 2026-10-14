@@ -5,14 +5,14 @@ import { db } from '@/firebase/init'
 import { useFormValidation } from '@/composables/useFormValidation'
 import { sanitizeInput } from '@/utils/security'
 
-const { form, errors, validateField, validateAll, isFormValid, resetForm } = useFormValidation(
+const { form, errors, validateField, validateAll, resetForm } = useFormValidation(
   ['name', 'email', 'subject', 'message'],
   {
     name: { type: 'required', label: 'Name' },
     email: { type: 'email', label: 'Email' },
     subject: { type: 'required', label: 'Subject' },
-    message: { type: 'minLength', label: 'Message', min: 10 }
-  }
+    message: { type: 'minLength', label: 'Message', min: 10 },
+  },
 )
 
 const submitted = ref(false)
@@ -81,12 +81,14 @@ async function handleSubmit() {
               class="form-control"
               :class="{
                 'is-invalid': errors.name,
-                'is-valid': submitted && !errors.name && form.name
+                'is-valid': submitted && !errors.name && form.name,
               }"
               placeholder="Enter your full name"
               @blur="validateField('name')"
+              :aria-invalid="errors.name ? 'true' : undefined"
+              :aria-describedby="errors.name ? 'name-error' : undefined"
             />
-            <div class="invalid-feedback">{{ errors.name }}</div>
+            <div id="name-error" class="invalid-feedback">{{ errors.name }}</div>
           </div>
 
           <div class="mb-3">
@@ -102,12 +104,14 @@ async function handleSubmit() {
               class="form-control"
               :class="{
                 'is-invalid': errors.email,
-                'is-valid': submitted && !errors.email && form.email
+                'is-valid': submitted && !errors.email && form.email,
               }"
               placeholder="your.email@example.com"
               @blur="validateField('email')"
+              :aria-invalid="errors.email ? 'true' : undefined"
+              :aria-describedby="errors.email ? 'email-error' : undefined"
             />
-            <div class="invalid-feedback">{{ errors.email }}</div>
+            <div id="email-error" class="invalid-feedback">{{ errors.email }}</div>
           </div>
 
           <div class="mb-3">
@@ -120,9 +124,11 @@ async function handleSubmit() {
               class="form-select"
               :class="{
                 'is-invalid': errors.subject,
-                'is-valid': submitted && !errors.subject && form.subject
+                'is-valid': submitted && !errors.subject && form.subject,
               }"
               @blur="validateField('subject')"
+              :aria-invalid="errors.subject ? 'true' : undefined"
+              :aria-describedby="errors.subject ? 'subject-error' : undefined"
             >
               <option value="" disabled>Select a subject</option>
               <option value="volunteer">Volunteer Inquiry</option>
@@ -131,7 +137,7 @@ async function handleSubmit() {
               <option value="partnership">Partnership Opportunity</option>
               <option value="other">Other</option>
             </select>
-            <div class="invalid-feedback">{{ errors.subject }}</div>
+            <div id="subject-error" class="invalid-feedback">{{ errors.subject }}</div>
           </div>
 
           <div class="mb-3">
@@ -145,20 +151,22 @@ async function handleSubmit() {
               class="form-control"
               :class="{
                 'is-invalid': errors.message,
-                'is-valid': submitted && !errors.message && form.message
+                'is-valid': submitted && !errors.message && form.message,
               }"
               rows="5"
               placeholder="Tell us how we can help (at least 10 characters)"
               @blur="validateField('message')"
+              :aria-invalid="errors.message ? 'true' : undefined"
+              :aria-describedby="errors.message ? 'message-error' : undefined"
             ></textarea>
-            <div class="invalid-feedback">{{ errors.message }}</div>
+            <div id="message-error" class="invalid-feedback">{{ errors.message }}</div>
             <div class="form-text">{{ form.message.length }} / 10 minimum characters</div>
           </div>
 
           <button
             type="submit"
             class="btn btn-greenroots w-100"
-            :disabled="!isFormValid || submitting"
+            :disabled="submitting"
           >
             <span
               v-if="submitting"

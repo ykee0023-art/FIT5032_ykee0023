@@ -12,7 +12,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 const eventStore = useEventStore()
 
-const { form, errors, validateField, validateAll, isFormValid, resetForm } = useFormValidation(
+const { form, errors, validateField, validateAll, resetForm } = useFormValidation(
   ['eventId', 'name', 'email', 'phone', 'age', 'skills', 'message'],
   {
     eventId: { type: 'required', label: 'Event' },
@@ -21,8 +21,8 @@ const { form, errors, validateField, validateAll, isFormValid, resetForm } = use
     phone: { type: 'phone', label: 'Phone' },
     age: { type: 'ageRange', label: 'Age', min: 16, max: 100 },
     skills: { type: 'required', label: 'Area of interest' },
-    message: { type: 'minLength', label: 'Message', min: 5 }
-  }
+    message: { type: 'minLength', label: 'Message', min: 5 },
+  },
 )
 
 const submitted = ref(false)
@@ -33,7 +33,11 @@ const confirmation = ref('')
 const selectedEvent = computed(() => eventStore.events.find((e) => e.id === form.eventId))
 
 function formatDate(date) {
-  return new Date(date).toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' })
+  return new Date(date).toLocaleDateString('en-AU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
 }
 
 // Same age bands as the Mockaroo seed data, so the admin table and charts can group them
@@ -172,10 +176,12 @@ async function handleSubmit() {
                     class="form-select"
                     :class="{
                       'is-invalid': errors.eventId,
-                      'is-valid': submitted && !errors.eventId && form.eventId
+                      'is-valid': submitted && !errors.eventId && form.eventId,
                     }"
                     :disabled="eventStore.loading && eventStore.events.length === 0"
                     @blur="validateField('eventId')"
+                    :aria-invalid="errors.eventId ? 'true' : undefined"
+                    :aria-describedby="errors.eventId ? 'vol-event-error' : undefined"
                   >
                     <option value="" disabled>
                       {{ eventStore.loading ? 'Loading events...' : 'Select an event' }}
@@ -185,9 +191,10 @@ async function handleSubmit() {
                       {{ event.spots > 0 ? `${event.spots} spots left` : 'full, join waitlist' }}
                     </option>
                   </select>
-                  <div class="invalid-feedback">{{ errors.eventId }}</div>
+                  <div id="vol-event-error" class="invalid-feedback">{{ errors.eventId }}</div>
                   <div v-if="selectedEvent" class="form-text">
-                    {{ selectedEvent.time }} at {{ selectedEvent.location }}, {{ selectedEvent.suburb }}
+                    {{ selectedEvent.time }} at {{ selectedEvent.location }},
+                    {{ selectedEvent.suburb }}
                   </div>
                 </div>
 
@@ -203,12 +210,14 @@ async function handleSubmit() {
                     class="form-control"
                     :class="{
                       'is-invalid': errors.name,
-                      'is-valid': submitted && !errors.name && form.name
+                      'is-valid': submitted && !errors.name && form.name,
                     }"
                     placeholder="Your full name"
                     @blur="validateField('name')"
+                    :aria-invalid="errors.name ? 'true' : undefined"
+                    :aria-describedby="errors.name ? 'vol-name-error' : undefined"
                   />
-                  <div class="invalid-feedback">{{ errors.name }}</div>
+                  <div id="vol-name-error" class="invalid-feedback">{{ errors.name }}</div>
                 </div>
 
                 <div class="col-12 col-sm-6">
@@ -223,12 +232,14 @@ async function handleSubmit() {
                     class="form-control"
                     :class="{
                       'is-invalid': errors.email,
-                      'is-valid': submitted && !errors.email && form.email
+                      'is-valid': submitted && !errors.email && form.email,
                     }"
                     placeholder="your.email@example.com"
                     @blur="validateField('email')"
+                    :aria-invalid="errors.email ? 'true' : undefined"
+                    :aria-describedby="errors.email ? 'vol-email-error' : undefined"
                   />
-                  <div class="invalid-feedback">{{ errors.email }}</div>
+                  <div id="vol-email-error" class="invalid-feedback">{{ errors.email }}</div>
                 </div>
 
                 <div class="col-12 col-sm-6">
@@ -243,12 +254,14 @@ async function handleSubmit() {
                     class="form-control"
                     :class="{
                       'is-invalid': errors.phone,
-                      'is-valid': submitted && !errors.phone && form.phone
+                      'is-valid': submitted && !errors.phone && form.phone,
                     }"
                     placeholder="0412 345 678"
                     @blur="validateField('phone')"
+                    :aria-invalid="errors.phone ? 'true' : undefined"
+                    :aria-describedby="errors.phone ? 'vol-phone-error' : undefined"
                   />
-                  <div class="invalid-feedback">{{ errors.phone }}</div>
+                  <div id="vol-phone-error" class="invalid-feedback">{{ errors.phone }}</div>
                 </div>
 
                 <div class="col-12 col-sm-6">
@@ -262,12 +275,14 @@ async function handleSubmit() {
                     class="form-control"
                     :class="{
                       'is-invalid': errors.age,
-                      'is-valid': submitted && !errors.age && form.age
+                      'is-valid': submitted && !errors.age && form.age,
                     }"
                     placeholder="Must be 16-100"
                     @blur="validateField('age')"
+                    :aria-invalid="errors.age ? 'true' : undefined"
+                    :aria-describedby="errors.age ? 'vol-age-error' : undefined"
                   />
-                  <div class="invalid-feedback">{{ errors.age }}</div>
+                  <div id="vol-age-error" class="invalid-feedback">{{ errors.age }}</div>
                 </div>
 
                 <div class="col-12">
@@ -280,9 +295,11 @@ async function handleSubmit() {
                     class="form-select"
                     :class="{
                       'is-invalid': errors.skills,
-                      'is-valid': submitted && !errors.skills && form.skills
+                      'is-valid': submitted && !errors.skills && form.skills,
                     }"
                     @blur="validateField('skills')"
+                    :aria-invalid="errors.skills ? 'true' : undefined"
+                    :aria-describedby="errors.skills ? 'vol-skills-error' : undefined"
                   >
                     <option value="" disabled>Select your interest</option>
                     <option value="planting">Tree Planting</option>
@@ -291,7 +308,7 @@ async function handleSubmit() {
                     <option value="conservation">Habitat Conservation</option>
                     <option value="admin">Admin & Coordination</option>
                   </select>
-                  <div class="invalid-feedback">{{ errors.skills }}</div>
+                  <div id="vol-skills-error" class="invalid-feedback">{{ errors.skills }}</div>
                 </div>
 
                 <div class="col-12">
@@ -304,20 +321,22 @@ async function handleSubmit() {
                     class="form-control"
                     :class="{
                       'is-invalid': errors.message,
-                      'is-valid': submitted && !errors.message && form.message
+                      'is-valid': submitted && !errors.message && form.message,
                     }"
                     rows="3"
                     placeholder="Tell us about yourself (at least 5 characters)"
                     @blur="validateField('message')"
+                    :aria-invalid="errors.message ? 'true' : undefined"
+                    :aria-describedby="errors.message ? 'vol-message-error' : undefined"
                   ></textarea>
-                  <div class="invalid-feedback">{{ errors.message }}</div>
+                  <div id="vol-message-error" class="invalid-feedback">{{ errors.message }}</div>
                 </div>
 
                 <div class="col-12">
                   <button
                     type="submit"
                     class="btn btn-greenroots w-100"
-                    :disabled="!isFormValid || submitting"
+                    :disabled="submitting"
                   >
                     <span
                       v-if="submitting"
