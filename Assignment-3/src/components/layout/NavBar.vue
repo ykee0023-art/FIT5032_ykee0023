@@ -91,6 +91,11 @@ async function handleLogout() {
                   <i class="bi bi-speedometer2 me-2"></i>My Dashboard
                 </RouterLink>
               </li>
+              <li>
+                <RouterLink class="dropdown-item" to="/compose">
+                  <i class="bi bi-envelope me-2" aria-hidden="true"></i>Send an Email
+                </RouterLink>
+              </li>
               <li v-if="authStore.isAdmin">
                 <RouterLink class="dropdown-item" to="/admin">
                   <i class="bi bi-shield-lock me-2"></i>Admin Panel
