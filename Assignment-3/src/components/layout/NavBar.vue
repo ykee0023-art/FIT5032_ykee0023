@@ -15,7 +15,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-greenroots sticky-top shadow-sm">
+  <nav class="navbar navbar-expand-xl navbar-dark bg-greenroots sticky-top shadow-sm">
     <div class="container">
       <RouterLink class="navbar-brand" to="/">
         <i class="bi bi-tree me-2" aria-hidden="true"></i>GreenRoots Melbourne
@@ -65,13 +65,13 @@ async function handleLogout() {
             </RouterLink>
           </li>
 
-          <li v-if="!authStore.isAuthenticated" class="nav-item ms-lg-2">
+          <li v-if="!authStore.isAuthenticated" class="nav-item ms-xl-2">
             <RouterLink class="btn btn-outline-light btn-sm" to="/login">
               <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
             </RouterLink>
           </li>
 
-          <li v-else class="nav-item dropdown ms-lg-2">
+          <li v-else class="nav-item dropdown ms-xl-2">
             <a
               class="nav-link dropdown-toggle"
               href="#"

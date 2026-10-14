@@ -105,7 +105,20 @@ footer a:hover {
   border-bottom: 2px solid #fff;
 }
 
-@media (max-width: 991.98px) {
+/* Keeps two-word links such as "About Us" on one line */
+.navbar .nav-link {
+  white-space: nowrap;
+}
+
+/* Slightly tighter links so an admin's full menu fits on one line at 1200px */
+@media (min-width: 1200px) {
+  .navbar-expand-xl .navbar-nav .nav-link {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+}
+
+@media (max-width: 1199.98px) {
   .navbar .nav-link.active {
     border-bottom: none;
     border-left: 3px solid #fff;
