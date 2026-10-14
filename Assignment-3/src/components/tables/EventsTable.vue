@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useRatingStore } from '@/stores/ratingStore'
@@ -70,6 +69,12 @@ const exportColumns = [
 
 function clearFilters() {
   filters.value = createFilters()
+}
+
+// Native number inputs, unlike PrimeVue's InputNumber, let people paste a value
+function applyMinimum(filterModel, filterCallback, value) {
+  filterModel.value = value === '' ? null : Number(value)
+  filterCallback()
 }
 </script>
 
@@ -207,15 +212,16 @@ function clearFilters() {
         <span v-else>{{ data.spots }}</span>
       </template>
       <template #filter="{ filterModel, filterCallback }">
-        <InputNumber
-          v-model="filterModel.value"
+        <InputText
+          :model-value="filterModel.value ?? ''"
+          type="number"
+          inputmode="numeric"
+          min="0"
           size="small"
           class="w-100"
-          input-class="w-100"
-          :min="0"
           placeholder="At least"
           aria-label="Filter by minimum spots left"
-          @update:model-value="filterCallback()"
+          @update:model-value="(value) => applyMinimum(filterModel, filterCallback, value)"
         />
       </template>
     </Column>
@@ -233,18 +239,18 @@ function clearFilters() {
         >{{ data.rating.toFixed(1) }}
       </template>
       <template #filter="{ filterModel, filterCallback }">
-        <InputNumber
-          v-model="filterModel.value"
+        <InputText
+          :model-value="filterModel.value ?? ''"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          max="5"
+          step="0.5"
           size="small"
           class="w-100"
-          input-class="w-100"
-          :min="0"
-          :max="5"
-          :step="0.5"
-          :min-fraction-digits="1"
           placeholder="At least"
           aria-label="Filter by minimum rating"
-          @update:model-value="filterCallback()"
+          @update:model-value="(value) => applyMinimum(filterModel, filterCallback, value)"
         />
       </template>
     </Column>
