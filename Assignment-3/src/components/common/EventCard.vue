@@ -9,6 +9,11 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  // Level that fits the page outline: 2 under the page's h1, 3 under a section's h2
+  headingLevel: {
+    type: Number,
+    default: 2,
+  },
 })
 
 const authStore = useAuthStore()
@@ -55,7 +60,7 @@ function handleRate(newRating) {
         </div>
       </div>
 
-      <h5 class="card-title">{{ event.name }}</h5>
+      <component :is="`h${headingLevel}`" class="h5 card-title">{{ event.name }}</component>
 
       <p class="card-text text-muted small mb-2">
         <i class="bi bi-calendar me-1" aria-hidden="true"></i>

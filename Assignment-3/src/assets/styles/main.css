@@ -4,6 +4,7 @@
   --gr-green-dark: #1b5e20;
   --gr-cream: #f9fbe7;
   --gr-brown: #5d4037;
+  --gr-focus: #0b5cad;
 }
 
 body {
@@ -100,6 +101,13 @@ footer a:hover {
   color: #fff;
 }
 
+/* Gives the stacked footer links a 24px tall target (WCAG 2.5.8) */
+footer .list-unstyled a {
+  display: inline-block;
+  min-height: 24px;
+  line-height: 24px;
+}
+
 .navbar .nav-link.active {
   font-weight: 600;
   border-bottom: 2px solid #fff;
@@ -108,6 +116,36 @@ footer a:hover {
 /* Keeps two-word links such as "About Us" on one line */
 .navbar .nav-link {
   white-space: nowrap;
+}
+
+/* Bootstrap's 55% white nav links are only 2.7:1 on our green; full white is 4.9:1 (WCAG 1.4.3) */
+.navbar.bg-greenroots {
+  --bs-navbar-color: #fff;
+  --bs-navbar-hover-color: #fff;
+  --bs-navbar-brand-color: #fff;
+  --bs-navbar-brand-hover-color: #fff;
+}
+
+.navbar .nav-link:hover {
+  text-decoration: underline;
+}
+
+/* Bootstrap's red and green text are about 4.5:1 on white and fail on tinted rows and badges */
+.text-danger {
+  color: #b02a37 !important;
+}
+
+.text-success {
+  color: #146c43 !important;
+}
+
+footer h2 {
+  color: #fff;
+}
+
+/* Bootstrap's blue inactive tab is under 4.5:1 on the grey card header */
+.card-header-tabs .nav-link:not(.active) {
+  color: var(--gr-green-dark);
 }
 
 /* Slightly tighter links so an admin's full menu fits on one line at 1200px */
@@ -149,6 +187,47 @@ main:focus {
   outline: none;
 }
 
+/* One clear keyboard focus ring everywhere (WCAG 2.4.7). Bootstrap's 25% blue glow is hard to
+   see, especially on the green navbar and footer, where the ring is white instead. */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-link:focus-visible,
+.navbar-toggler:focus-visible,
+.dropdown-item:focus-visible,
+summary:focus-visible,
+[tabindex]:not([tabindex='-1']):focus-visible {
+  outline: 3px solid var(--gr-focus) !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+.navbar :focus-visible,
+footer :focus-visible,
+.hero-section :focus-visible {
+  outline-color: #fff !important;
+}
+
+/* Table cells sit inside a scrolling container that would clip a ring drawn outside them */
+.p-datatable [tabindex]:not([tabindex='-1']):focus-visible {
+  outline-offset: -3px;
+}
+
+.navbar .dropdown-menu :focus-visible {
+  outline-color: var(--gr-focus) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--gr-focus);
+  box-shadow: 0 0 0 0.2rem rgba(11, 92, 173, 0.35);
+}
+
+/* Headings are focused by script after navigation; keep the ring for keyboard users only */
+h1[tabindex='-1']:focus:not(:focus-visible) {
+  outline: none;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease;
@@ -157,4 +236,17 @@ main:focus {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: none;
+  }
+
+  .card,
+  .card:hover {
+    transition: none;
+    transform: none;
+  }
 }

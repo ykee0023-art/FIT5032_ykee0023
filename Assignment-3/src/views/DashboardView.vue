@@ -80,7 +80,7 @@ function updateRating(eventId, newRating) {
     <div v-if="activeTab === 'profile'">
       <div class="card shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Profile Information</h5>
+          <h2 class="h5 card-title">Profile Information</h2>
           <div class="row g-3">
             <div class="col-sm-6">
               <label class="form-label text-muted">Full Name</label>

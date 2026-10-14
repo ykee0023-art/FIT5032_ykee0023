@@ -104,7 +104,7 @@ async function handleSubmit() {
 
 <template>
   <div class="container py-5">
-    <div class="row g-5">
+    <div class="row g-4 g-lg-5">
       <div class="col-12 col-lg-5">
         <h1 class="mb-3">Get Involved</h1>
         <p class="lead">
@@ -114,7 +114,7 @@ async function handleSubmit() {
           <div class="d-flex align-items-start mb-3">
             <i class="bi bi-clock fs-4 text-greenroots me-3" aria-hidden="true"></i>
             <div>
-              <h6 class="mb-1">Flexible Hours</h6>
+              <h2 class="h6 mb-1">Flexible Hours</h2>
               <p class="small text-muted mb-0">
                 Choose events that fit your schedule — weekdays, weekends, or school holidays.
               </p>
@@ -123,7 +123,7 @@ async function handleSubmit() {
           <div class="d-flex align-items-start mb-3">
             <i class="bi bi-tools fs-4 text-greenroots me-3" aria-hidden="true"></i>
             <div>
-              <h6 class="mb-1">No Experience Needed</h6>
+              <h2 class="h6 mb-1">No Experience Needed</h2>
               <p class="small text-muted mb-0">
                 We provide all training, tools, and protective equipment.
               </p>
@@ -132,7 +132,7 @@ async function handleSubmit() {
           <div class="d-flex align-items-start mb-3">
             <i class="bi bi-award fs-4 text-greenroots me-3" aria-hidden="true"></i>
             <div>
-              <h6 class="mb-1">Certificate of Participation</h6>
+              <h2 class="h6 mb-1">Certificate of Participation</h2>
               <p class="small text-muted mb-0">
                 Receive recognition for your contribution to the community.
               </p>
@@ -144,7 +144,7 @@ async function handleSubmit() {
       <div class="col-12 col-lg-7">
         <div class="card shadow-sm">
           <div class="card-body p-4">
-            <h4 class="card-title mb-3">Volunteer Registration</h4>
+            <h2 class="h4 card-title mb-3">Volunteer Registration</h2>
 
             <div v-if="confirmation" class="alert alert-success alert-dismissible" role="alert">
               {{ confirmation }}

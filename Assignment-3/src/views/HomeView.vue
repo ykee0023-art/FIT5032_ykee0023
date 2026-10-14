@@ -39,28 +39,28 @@ onMounted(() => {
           <div class="col-6 col-md-3">
             <div class="p-3">
               <i class="bi bi-tree fs-1 text-greenroots" aria-hidden="true"></i>
-              <h3 class="fw-bold mt-2">{{ store.totalEvents }}</h3>
+              <p class="h3 fw-bold mt-2 mb-1">{{ store.totalEvents }}</p>
               <p class="text-muted mb-0">Active Events</p>
             </div>
           </div>
           <div class="col-6 col-md-3">
             <div class="p-3">
               <i class="bi bi-people fs-1 text-greenroots" aria-hidden="true"></i>
-              <h3 class="fw-bold mt-2">{{ store.totalSpots }}</h3>
+              <p class="h3 fw-bold mt-2 mb-1">{{ store.totalSpots }}</p>
               <p class="text-muted mb-0">Spots Available</p>
             </div>
           </div>
           <div class="col-6 col-md-3">
             <div class="p-3">
               <i class="bi bi-star fs-1 text-greenroots" aria-hidden="true"></i>
-              <h3 class="fw-bold mt-2">{{ ratingStore.getOverallAverage() || store.averageRating }}</h3>
+              <p class="h3 fw-bold mt-2 mb-1">{{ ratingStore.getOverallAverage() || store.averageRating }}</p>
               <p class="text-muted mb-0">Avg Rating</p>
             </div>
           </div>
           <div class="col-6 col-md-3">
             <div class="p-3">
               <i class="bi bi-geo-alt fs-1 text-greenroots" aria-hidden="true"></i>
-              <h3 class="fw-bold mt-2">Melbourne</h3>
+              <p class="h3 fw-bold mt-2 mb-1">Melbourne</p>
               <p class="text-muted mb-0">Victoria, AU</p>
             </div>
           </div>
@@ -77,7 +77,7 @@ onMounted(() => {
             :key="event.id"
             class="col-12 col-sm-6 col-lg-4"
           >
-            <EventCard :event="event" />
+            <EventCard :event="event" :heading-level="3" />
           </div>
         </div>
         <div class="text-center mt-4">
@@ -119,7 +119,7 @@ onMounted(() => {
           <div class="col-12 col-md-6">
             <div class="bg-success bg-opacity-10 rounded-3 p-4 text-center">
               <i class="bi bi-globe-americas display-1 text-greenroots" aria-hidden="true"></i>
-              <h4 class="mt-3">Join the Movement</h4>
+              <h3 class="h4 mt-3">Join the Movement</h3>
               <p class="text-muted">Every tree planted makes a difference.</p>
               <RouterLink to="/get-involved" class="btn btn-greenroots">
                 Get Involved Today

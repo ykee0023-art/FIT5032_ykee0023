@@ -100,7 +100,7 @@ function formatDate(dateStr) {
               <span class="badge bg-success-subtle text-success">{{ article.category }}</span>
               <small class="text-muted">{{ formatDate(article.date) }}</small>
             </div>
-            <h5 class="card-title">{{ article.title }}</h5>
+            <h2 class="h5 card-title">{{ article.title }}</h2>
             <p class="card-text text-muted">{{ article.excerpt }}</p>
             <button
               class="btn btn-sm btn-outline-greenroots"
@@ -120,10 +120,10 @@ function formatDate(dateStr) {
     </div>
 
     <section class="mt-5 p-4 bg-light rounded-3">
-      <h3>Frequently Asked Questions</h3>
+      <h2 class="h3">Frequently Asked Questions</h2>
       <div class="accordion mt-3" id="faqAccordion">
         <div class="accordion-item">
-          <h2 class="accordion-header">
+          <h3 class="accordion-header">
             <button
               class="accordion-button"
               type="button"
@@ -132,7 +132,7 @@ function formatDate(dateStr) {
             >
               Do I need experience to volunteer?
             </button>
-          </h2>
+          </h3>
           <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
             <div class="accordion-body">
               No experience is needed! We provide all training, tools, and guidance on the day.
@@ -141,7 +141,7 @@ function formatDate(dateStr) {
           </div>
         </div>
         <div class="accordion-item">
-          <h2 class="accordion-header">
+          <h3 class="accordion-header">
             <button
               class="accordion-button collapsed"
               type="button"
@@ -150,7 +150,7 @@ function formatDate(dateStr) {
             >
               What should I bring to an event?
             </button>
-          </h2>
+          </h3>
           <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
             <div class="accordion-body">
               Wear comfortable clothing you don't mind getting dirty, closed-toe shoes, a hat, and
@@ -159,7 +159,7 @@ function formatDate(dateStr) {
           </div>
         </div>
         <div class="accordion-item">
-          <h2 class="accordion-header">
+          <h3 class="accordion-header">
             <button
               class="accordion-button collapsed"
               type="button"
@@ -168,7 +168,7 @@ function formatDate(dateStr) {
             >
               Can I volunteer as a group?
             </button>
-          </h2>
+          </h3>
           <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
             <div class="accordion-body">
               Absolutely! We welcome corporate teams, school groups, and community organisations.

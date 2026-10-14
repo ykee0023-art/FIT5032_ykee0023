@@ -152,26 +152,29 @@ function setMode(newMode) {
 
         <div class="card shadow">
           <div class="card-header p-0">
+            <!-- Buttons, not links: they switch the form on this page rather than navigate -->
             <ul class="nav nav-tabs card-header-tabs">
               <li class="nav-item flex-fill">
-                <a
-                  class="nav-link text-center"
+                <button
+                  type="button"
+                  class="nav-link w-100 text-center"
                   :class="{ active: isLoginMode }"
-                  href="#"
-                  @click.prevent="setMode('login')"
+                  :aria-pressed="isLoginMode"
+                  @click="setMode('login')"
                 >
-                  <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
-                </a>
+                  <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Sign In
+                </button>
               </li>
               <li class="nav-item flex-fill">
-                <a
-                  class="nav-link text-center"
+                <button
+                  type="button"
+                  class="nav-link w-100 text-center"
                   :class="{ active: !isLoginMode }"
-                  href="#"
-                  @click.prevent="setMode('register')"
+                  :aria-pressed="!isLoginMode"
+                  @click="setMode('register')"
                 >
-                  <i class="bi bi-person-plus me-1"></i>Create Account
-                </a>
+                  <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Create Account
+                </button>
               </li>
             </ul>
           </div>

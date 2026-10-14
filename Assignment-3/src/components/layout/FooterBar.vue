@@ -3,14 +3,14 @@
     <div class="container">
       <div class="row g-4">
         <div class="col-12 col-md-4">
-          <h5><i class="bi bi-tree me-2" aria-hidden="true"></i>GreenRoots Melbourne</h5>
+          <h2 class="h5"><i class="bi bi-tree me-2" aria-hidden="true"></i>GreenRoots Melbourne</h2>
           <p class="small">
             A not-for-profit dedicated to urban greening, community tree planting,
             and biodiversity conservation across Greater Melbourne.
           </p>
         </div>
-        <div class="col-6 col-md-4">
-          <h6>Quick Links</h6>
+        <div class="col-12 col-sm-6 col-md-4">
+          <h2 class="h6">Quick Links</h2>
           <ul class="list-unstyled small">
             <li><RouterLink to="/about">About Us</RouterLink></li>
             <li><RouterLink to="/events">Events</RouterLink></li>
@@ -20,8 +20,8 @@
             <li><RouterLink to="/developers">Developer API</RouterLink></li>
           </ul>
         </div>
-        <div class="col-6 col-md-4">
-          <h6>Connect</h6>
+        <div class="col-12 col-sm-6 col-md-4">
+          <h2 class="h6">Connect</h2>
           <ul class="list-unstyled small">
             <li>
               <i class="bi bi-envelope me-1" aria-hidden="true"></i>

@@ -202,7 +202,17 @@ onMounted(async () => {
       </template>
       <template #loading>Loading registrations...</template>
 
-      <Column selection-mode="multiple" header-style="width: 3rem" />
+      <!-- With row filters the select-all box moves to the filter row, so the header needs a
+           hidden label, and PrimeVue's stray aria-selected on the row checkbox is removed -->
+      <Column
+        selection-mode="multiple"
+        header="Select"
+        header-style="width: 3rem"
+        :pt="{
+          columnTitle: { class: 'visually-hidden' },
+          pcRowCheckbox: { root: { 'aria-selected': undefined } },
+        }"
+      />
 
       <Column
         field="name"

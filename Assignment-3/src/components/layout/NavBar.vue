@@ -15,7 +15,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-xl navbar-dark bg-greenroots sticky-top shadow-sm">
+  <nav class="navbar navbar-expand-xl navbar-dark bg-greenroots sticky-top shadow-sm" aria-label="Main">
     <div class="container">
       <RouterLink class="navbar-brand" to="/">
         <i class="bi bi-tree me-2" aria-hidden="true"></i>GreenRoots Melbourne
