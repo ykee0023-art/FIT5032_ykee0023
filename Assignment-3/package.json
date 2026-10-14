@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:emulator": "vite --mode emulator",
-    "emulators": "firebase emulators:start --only auth,firestore",
+    "emulators": "firebase emulators:start --only auth,firestore,functions",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "run-s \"lint:*\"",

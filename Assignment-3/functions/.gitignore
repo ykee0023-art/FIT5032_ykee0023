@@ -1,0 +1,6 @@
+node_modules/
+*.log
+# Deploy-time config (the sender address); see .env.example
+.env
+# Secrets for the local emulator only
+.secret.local
