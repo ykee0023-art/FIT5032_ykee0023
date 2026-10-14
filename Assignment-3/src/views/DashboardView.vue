@@ -56,24 +56,26 @@ function updateRating(eventId, newRating) {
 
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
-        <a
+        <button
+          type="button"
           class="nav-link"
           :class="{ active: activeTab === 'profile' }"
-          href="#"
-          @click.prevent="activeTab = 'profile'"
+          :aria-pressed="activeTab === 'profile'"
+          @click="activeTab = 'profile'"
         >
-          <i class="bi bi-person me-1"></i>My Profile
-        </a>
+          <i class="bi bi-person me-1" aria-hidden="true"></i>My Profile
+        </button>
       </li>
       <li class="nav-item">
-        <a
+        <button
+          type="button"
           class="nav-link"
           :class="{ active: activeTab === 'ratings' }"
-          href="#"
-          @click.prevent="activeTab = 'ratings'"
+          :aria-pressed="activeTab === 'ratings'"
+          @click="activeTab = 'ratings'"
         >
-          <i class="bi bi-star me-1"></i>My Ratings
-        </a>
+          <i class="bi bi-star me-1" aria-hidden="true"></i>My Ratings
+        </button>
       </li>
     </ul>
 
