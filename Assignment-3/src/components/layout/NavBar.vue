@@ -45,6 +45,9 @@ async function handleLogout() {
             <RouterLink class="nav-link" :class="{ active: currentPath === '/events' }" to="/events">Events</RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink class="nav-link" :class="{ active: currentPath === '/map' }" to="/map">Map</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink class="nav-link" :class="{ active: currentPath === '/resources' }" to="/resources">Resources</RouterLink>
           </li>
           <li v-if="authStore.isAuthenticated" class="nav-item">
