@@ -29,6 +29,11 @@ const router = createRouter({
       component: () => import('../views/MapView.vue'),
     },
     {
+      path: '/impact',
+      name: 'impact',
+      component: () => import('../views/ImpactView.vue'),
+    },
+    {
       path: '/resources',
       name: 'resources',
       component: () => import('../views/ResourcesView.vue'),

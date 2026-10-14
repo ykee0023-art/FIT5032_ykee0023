@@ -48,6 +48,9 @@ async function handleLogout() {
             <RouterLink class="nav-link" :class="{ active: currentPath === '/map' }" to="/map">Map</RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink class="nav-link" :class="{ active: currentPath === '/impact' }" to="/impact">Impact</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink class="nav-link" :class="{ active: currentPath === '/resources' }" to="/resources">Resources</RouterLink>
           </li>
           <li v-if="authStore.isAuthenticated" class="nav-item">
@@ -56,7 +59,8 @@ async function handleLogout() {
           <li class="nav-item">
             <RouterLink class="nav-link" :class="{ active: currentPath === '/contact' }" to="/contact">Contact Us</RouterLink>
           </li>
-          <li v-if="authStore.isAuthenticated" class="nav-item">
+          <!-- Admins get the Admin link here instead; both stay in the account menu -->
+          <li v-if="authStore.isAuthenticated && !authStore.isAdmin" class="nav-item">
             <RouterLink class="nav-link" :class="{ active: currentPath === '/dashboard' }" to="/dashboard">Dashboard</RouterLink>
           </li>
           <li v-if="authStore.isAdmin" class="nav-item">
