@@ -16,6 +16,8 @@
             <li><RouterLink to="/events">Events</RouterLink></li>
             <li><RouterLink to="/get-involved">Get Involved</RouterLink></li>
             <li><RouterLink to="/contact">Contact Us</RouterLink></li>
+            <li><RouterLink to="/impact">Our Impact</RouterLink></li>
+            <li><RouterLink to="/developers">Developer API</RouterLink></li>
           </ul>
         </div>
         <div class="col-6 col-md-4">

@@ -3,12 +3,13 @@
 // Firestore triggers must be in the same region, and it keeps callables close to Melbourne users.
 import { Buffer } from 'node:buffer'
 import { setGlobalOptions } from 'firebase-functions'
-import { HttpsError, onCall } from 'firebase-functions/https'
+import { HttpsError, onCall, onRequest } from 'firebase-functions/https'
 import { onDocumentCreated } from 'firebase-functions/firestore'
 import { defineSecret, defineString } from 'firebase-functions/params'
 import * as logger from 'firebase-functions/logger'
 import { initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { handleApiRequest } from './api.js'
 import { buildEventIcs } from './calendar.js'
 
 setGlobalOptions({ region: 'australia-southeast2', maxInstances: 5 })
@@ -290,6 +291,11 @@ export const sendBulkEmail = onCall(
       results,
     }
   },
+)
+
+// F.1 public REST API: GET /events, /events/{id} and /stats (routes live in api.js)
+export const api = onRequest({ invoker: 'public' }, (req, res) =>
+  handleApiRequest(req, res, db, logger),
 )
 
 // E.1: when a volunteer registers on the website, book a spot and email a confirmation

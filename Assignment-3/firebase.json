@@ -17,6 +17,10 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
+        "source": "/api{,/**}",
+        "function": { "functionId": "api", "region": "australia-southeast2" }
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

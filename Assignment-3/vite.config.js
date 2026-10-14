@@ -28,4 +28,16 @@ export default defineConfig(({ mode }) => ({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // In production Firebase Hosting forwards /api to the api function; this does the same locally
+  server: {
+    proxy: {
+      '/api':
+        mode === 'emulator'
+          ? {
+              target: 'http://127.0.0.1:5001',
+              rewrite: (path) => `/fit5032-1b795/australia-southeast2/api${path}`,
+            }
+          : { target: 'https://fit5032-1b795.web.app', changeOrigin: true },
+    },
+  },
 }))
