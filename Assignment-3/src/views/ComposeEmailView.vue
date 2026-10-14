@@ -3,10 +3,8 @@ import { ref } from 'vue'
 import { httpsCallable } from 'firebase/functions'
 import { functions } from '@/firebase/init'
 import { useFormValidation } from '@/composables/useFormValidation'
+import { ATTACHMENT_ACCEPT, attachmentError, formatSize, readAsBase64 } from '@/utils/attachment'
 
-// Same limits as the sendEmail Cloud Function, which checks them again on the server
-const MAX_ATTACHMENT_BYTES = 2 * 1024 * 1024
-const ALLOWED_EXTENSIONS = ['pdf', 'png', 'jpg', 'jpeg', 'ics']
 // Messages for these errors are written for the user by the Cloud Function
 const USER_FACING_ERRORS = [
   'functions/invalid-argument',
@@ -29,43 +27,21 @@ const fileError = ref('')
 const sending = ref(false)
 const result = ref(null)
 
-function formatSize(bytes) {
-  return bytes < 1024 * 1024
-    ? `${Math.ceil(bytes / 1024)} KB`
-    : `${(bytes / 1024 / 1024).toFixed(1)} MB`
-}
-
 function handleFileChange(event) {
   const chosen = event.target.files[0] || null
   file.value = null
   fileError.value = ''
   if (!chosen) return
 
-  const extension = chosen.name.split('.').pop().toLowerCase()
-  if (!ALLOWED_EXTENSIONS.includes(extension)) {
-    fileError.value = 'Please choose a PDF, PNG, JPG or ICS file.'
-  } else if (chosen.size > MAX_ATTACHMENT_BYTES) {
-    fileError.value = `This file is ${formatSize(chosen.size)}. Attachments must be smaller than 2 MB.`
-  } else {
-    file.value = chosen
-    return
-  }
-  event.target.value = ''
+  fileError.value = attachmentError(chosen)
+  if (fileError.value) event.target.value = ''
+  else file.value = chosen
 }
 
 function removeFile() {
   file.value = null
   fileError.value = ''
   fileInput.value.value = ''
-}
-
-function readAsBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result.split(',')[1])
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(blob)
-  })
 }
 
 async function handleSend() {
@@ -194,7 +170,7 @@ async function handleSend() {
                   type="file"
                   class="form-control"
                   :class="{ 'is-invalid': fileError }"
-                  accept=".pdf,.png,.jpg,.jpeg,.ics,application/pdf,image/png,image/jpeg,text/calendar"
+                  :accept="ATTACHMENT_ACCEPT"
                   aria-describedby="email-attachment-help"
                   @change="handleFileChange"
                 />
