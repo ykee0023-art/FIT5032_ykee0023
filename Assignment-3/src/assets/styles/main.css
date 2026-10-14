@@ -189,6 +189,12 @@ main:focus {
   outline: none;
 }
 
+/* Keeps the footer below the fold while a page's data loads, so it does not jump down
+   when the content arrives (this was most of the Lighthouse layout shift score) */
+main {
+  min-height: 100vh;
+}
+
 /* One clear keyboard focus ring everywhere (WCAG 2.4.7). Bootstrap's 25% blue glow is hard to
    see, especially on the green navbar and footer, where the ring is white instead. */
 a:focus-visible,
