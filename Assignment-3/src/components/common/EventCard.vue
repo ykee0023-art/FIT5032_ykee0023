@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRatingStore } from '@/stores/ratingStore'
 import StarRating from '@/components/common/StarRating.vue'
@@ -18,11 +18,12 @@ const props = defineProps({
 
 const authStore = useAuthStore()
 const ratingStore = useRatingStore()
-const userRating = ref(0)
-
-if (authStore.isAuthenticated) {
-  userRating.value = ratingStore.getUserRating(props.event.id, authStore.currentUser.id)
-}
+// Read from the store, because ratings arrive from Firestore after the card is created
+const userRating = computed(() =>
+  authStore.isAuthenticated
+    ? ratingStore.getUserRating(props.event.id, authStore.currentUser.id)
+    : 0,
+)
 
 const avgRating = computed(
   () => ratingStore.getAverageRating(props.event.id) || props.event.rating,
@@ -42,7 +43,6 @@ const formattedDate = computed(() => {
 
 function handleRate(newRating) {
   if (!authStore.isAuthenticated) return
-  userRating.value = newRating
   ratingStore.submitRating(props.event.id, authStore.currentUser.id, newRating)
 }
 </script>
@@ -79,6 +79,13 @@ function handleRate(newRating) {
             {{ userRating ? 'Your rating:' : 'Rate this event:' }}
           </small>
           <StarRating :model-value="userRating" @update:model-value="handleRate" size="md" />
+          <p
+            v-if="ratingStore.saveError?.eventId === event.id"
+            class="small text-danger mb-0 mt-1"
+            role="alert"
+          >
+            {{ ratingStore.saveError.message }}
+          </p>
         </template>
         <template v-else>
           <small class="text-muted">

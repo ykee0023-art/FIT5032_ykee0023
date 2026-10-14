@@ -1,17 +1,28 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { collection, doc, getDocs, serverTimestamp, setDoc } from 'firebase/firestore'
+import { db } from '@/firebase/init'
 
-const RATINGS_KEY = 'greenroots_ratings'
-
+// Ratings live in Firestore so everyone sees the same averages. One document per user per event
+// (ratings/{eventId}_{uid}), so rating again replaces the old score instead of adding a new one.
 export const useRatingStore = defineStore('ratings', () => {
+  // { [eventId]: [{ userId, rating }] }
   const ratings = ref({})
+  // { eventId, message } for the rating that failed to save, so only that card shows it
+  const saveError = ref(null)
 
-  function loadRatings() {
-    ratings.value = JSON.parse(localStorage.getItem(RATINGS_KEY) || '{}')
-  }
-
-  function saveRatings() {
-    localStorage.setItem(RATINGS_KEY, JSON.stringify(ratings.value))
+  async function loadRatings() {
+    try {
+      const snapshot = await getDocs(collection(db, 'ratings'))
+      const grouped = {}
+      for (const d of snapshot.docs) {
+        const { eventId, userId, rating } = d.data()
+        ;(grouped[eventId] ??= []).push({ userId, rating })
+      }
+      ratings.value = grouped
+    } catch {
+      // Ratings are optional extras: the cards fall back to each event's seeded rating
+    }
   }
 
   function getAverageRating(eventId) {
@@ -42,26 +53,34 @@ export const useRatingStore = defineStore('ratings', () => {
     return result
   }
 
-  function submitRating(eventId, userId, rating) {
-    if (!ratings.value[eventId]) {
-      ratings.value[eventId] = []
-    }
-    const entries = ratings.value[eventId]
+  function setLocalRating(eventId, userId, rating) {
+    const entries = (ratings.value[eventId] ??= [])
     const existing = entries.findIndex((e) => e.userId === userId)
-
-    const ratingEntry = {
-      userId,
-      rating,
-      timestamp: new Date().toISOString(),
-    }
-
-    if (existing >= 0) {
-      entries[existing] = ratingEntry
+    if (rating === null) {
+      if (existing >= 0) entries.splice(existing, 1)
+    } else if (existing >= 0) {
+      entries[existing] = { userId, rating }
     } else {
-      entries.push(ratingEntry)
+      entries.push({ userId, rating })
     }
+  }
 
-    saveRatings()
+  // Shows the new score straight away, then saves it; puts the old score back if saving fails
+  async function submitRating(eventId, userId, rating) {
+    const previous = getUserRating(eventId, userId) || null
+    saveError.value = null
+    setLocalRating(eventId, userId, rating)
+    try {
+      await setDoc(doc(db, 'ratings', `${eventId}_${userId}`), {
+        eventId,
+        userId,
+        rating,
+        updatedAt: serverTimestamp(),
+      })
+    } catch {
+      setLocalRating(eventId, userId, previous)
+      saveError.value = { eventId, message: 'Your rating could not be saved. Please try again.' }
+    }
   }
 
   function getOverallAverage() {
@@ -73,6 +92,7 @@ export const useRatingStore = defineStore('ratings', () => {
 
   return {
     ratings,
+    saveError,
     loadRatings,
     getAverageRating,
     getRatingCount,
