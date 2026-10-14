@@ -3,8 +3,11 @@
     <div class="row justify-content-center text-center">
       <div class="col-12 col-md-8 col-lg-6">
         <i class="bi bi-signpost-split display-1 text-greenroots" aria-hidden="true"></i>
-        <p class="display-4 fw-bold mt-3 mb-2">404</p>
-        <h1 class="h3 mb-3">This page has not taken root</h1>
+        <!-- The big number is decoration; the heading carries the same information for screen readers -->
+        <div class="display-4 fw-bold mt-3 mb-2" aria-hidden="true">404</div>
+        <h1 class="h3 mb-3">
+          <span class="visually-hidden">Error 404: </span>This page has not taken root
+        </h1>
         <p class="text-muted mb-4">
           The page you are looking for does not exist or may have been moved. Let's get you back to
           familiar ground.
