@@ -1,0 +1,57 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    # Only redeploy when the Week 11/12 project (or this workflow) changes,
+    # not when other weeks or assignments in this repo are updated.
+    paths:
+      - 'week11_and_week12/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
+    # The Vue project lives in a subfolder of this repository.
+    defaults:
+      run:
+        working-directory: week11_and_week12
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+        cache-dependency-path: week11_and_week12/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+      env:
+        # Makes vite.config.js use /FIT5032_ykee0023/ as the base path.
+        DEPLOY_TARGET: github-pages
+        # Optional repository secret; the Get Weather page needs it at build time.
+        VITE_OPENWEATHER_API_KEY: ${{ secrets.VITE_OPENWEATHER_API_KEY }}
+
+    # GitHub Pages has no SPA fallback, so serve the app for unknown paths
+    # (e.g. refreshing /FIT5032_ykee0023/WeatherCheck).
+    - name: Add SPA fallback
+      run: cp dist/index.html dist/404.html
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: week11_and_week12/dist
+
+permissions:
+  contents: write
